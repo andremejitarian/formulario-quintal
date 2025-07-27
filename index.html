@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Formulário de Cadastro - Quintal das Artes</title>
+  <title>Inscrição QUINTAL das Artes</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
   <style>
@@ -28,19 +28,8 @@
       width: 100%;
       max-width: 600px;
       box-sizing: border-box;
-      border: 3px solid #FAC622;
       position: relative;
       overflow: hidden;
-    }
-    
-    .container::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 5px;
-      background-color: #FCD406;
     }
     
     .logo-container {
@@ -63,11 +52,29 @@
     }
     
     p.description {
-      font-size: 1rem;
-      color: #A0A0A0;
-      text-align: center;
+      font-size: 0.95rem;
+      color: #5B5B5B;
+      text-align: left;
       margin-bottom: 2rem;
-      line-height: 1.5;
+      line-height: 1.6;
+      background-color: #F8F1C9;
+      padding: 1.5rem;
+      border-radius: 12px;
+      border-left: 4px solid #FAC622;
+    }
+    
+    .description strong {
+      color: #5B5B5B;
+      font-weight: 700;
+    }
+    
+    .description .highlight {
+      background-color: #FCD406;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      font-weight: 600;
+      display: inline-block;
+      margin: 0.2rem 0;
     }
     
     .form-group {
@@ -119,6 +126,14 @@
     .form-group select:hover,
     .form-group textarea:hover {
       border-color: #FCD406;
+    }
+    
+    .form-group input:disabled,
+    .form-group select:disabled {
+      background-color: #f5f5f5;
+      color: #999;
+      cursor: not-allowed;
+      border-color: #ddd;
     }
     
     .checkbox-group {
@@ -182,6 +197,17 @@
       margin: 1rem 0;
       font-weight: 600;
       text-align: center;
+    }
+    
+    .payment-info {
+      background-color: #e8f4fd;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+      padding: 0.8rem;
+      border-radius: 8px;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      font-style: italic;
     }
     
     .btn {
@@ -268,6 +294,11 @@
       background-color: #ffffff;
     }
     
+    select option:disabled {
+      color: #999;
+      background-color: #f5f5f5;
+    }
+    
     ::placeholder {
       color: #A0A0A0;
     }
@@ -289,6 +320,11 @@
       .checkbox-group {
         grid-template-columns: 1fr;
       }
+      
+      p.description {
+        font-size: 0.9rem;
+        padding: 1rem;
+      }
     }
   </style>
 </head>
@@ -299,13 +335,20 @@
         <img src="./logo-quintal.png" alt="Quintal das Artes" class="logo">
       </div>
       
-      <h1>Formulário de Cadastro</h1>
-      <p class="description">Preencha os campos abaixo para se inscrever em nossos cursos de artes.</p>
+      <h1>Inscrição QUINTAL das Artes</h1>
+      <p class="description">
+        Que bom que chegou aqui! Se você recebeu este link é porque já passou por uma aula experimental e vai fazer sua inscrição. Estamos muito felizes em receber sua família! A arte e o brincar são elementos centrais na programação do QUINTAL das artes.<br><br>
+        
+        Para + informações e dúvidas, entre em contato com a Lari no whatsapp <strong>(11) 9 4035.5159</strong><br><br>
+        
+        <span class="highlight">**os descontos não são cumulativos**</span><br>
+        <span class="highlight">{PLANOS BIMESTRAIS E QUADRIMESTRAIS PODEM SER PAGOS VIA CARTÃO DE CRÉDITO}</span>
+      </p>
       
       <form id="main-form">
         <!-- Campos originais -->
         <div class="form-group">
-          <label for="nome">Nome Completo <span class="required">*</span></label>
+          <label for="nome">Qual o nome completo do(a) aprendiz? <span class="required">*</span></label>
           <input type="text" id="nome" name="nome" required placeholder="Digite o nome completo da criança" />
         </div>
         
@@ -449,10 +492,13 @@
           <label for="forma-pagamento">Forma de Pagamento <span class="required">*</span></label>
           <select id="forma-pagamento" name="forma-pagamento" required>
             <option value="">Selecione uma opção</option>
-            <option value="cartao-credito">💳 Cartão de Crédito</option>
             <option value="pix">🔄 PIX</option>
             <option value="boleto">📄 Boleto</option>
+            <option value="cartao-credito" disabled>💳 Cartão de Crédito (disponível apenas para planos bimestral e quadrimestral)</option>
           </select>
+          <div id="payment-info" class="payment-info hidden">
+            Cartão de crédito disponível apenas para planos bimestral e quadrimestral.
+          </div>
         </div>
         
         <button type="submit" id="submit-btn" class="btn">Enviar Cadastro</button>
@@ -542,6 +588,37 @@
         option.textContent = contraturno.nome;
         cursoSelect.appendChild(option);
       });
+      
+      // Atualizar opções de pagamento baseado no plano
+      atualizarFormaPagamento();
+    }
+    
+    function atualizarFormaPagamento() {
+      const planoSelecionado = document.getElementById('plano').value;
+      const formaPagamentoSelect = document.getElementById('forma-pagamento');
+      const paymentInfo = document.getElementById('payment-info');
+      const cartaoOption = formaPagamentoSelect.querySelector('option[value="cartao-credito"]');
+      
+      // Verificar se é plano bimestral ou quadrimestral
+      const permiteCartao = planoSelecionado === 'bimestral' || planoSelecionado === 'quadrimestral';
+      
+      if (permiteCartao) {
+        cartaoOption.disabled = false;
+        cartaoOption.textContent = '💳 Cartão de Crédito';
+        paymentInfo.classList.add('hidden');
+      } else {
+        cartaoOption.disabled = true;
+        cartaoOption.textContent = '💳 Cartão de Crédito (disponível apenas para planos bimestral e quadrimestral)';
+        
+        // Se cartão estava selecionado, limpar seleção
+        if (formaPagamentoSelect.value === 'cartao-credito') {
+          formaPagamentoSelect.value = '';
+        }
+        
+        if (planoSelecionado) {
+          paymentInfo.classList.remove('hidden');
+        }
+      }
     }
     
     function calcularPreco() {
