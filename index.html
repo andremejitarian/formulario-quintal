@@ -460,18 +460,18 @@
           <div id="fonte-error" class="error-message hidden">Por favor, selecione pelo menos uma opção.</div>
         </div>
         
-        <!-- Campos de curso e pagamento -->
+        <!-- NOVA ORDEM: Curso ANTES do Plano -->
         <div class="form-group">
-          <label for="plano">Plano de Pagamento <span class="required">*</span></label>
-          <select id="plano" name="plano" required>
-            <option value="">Selecione um plano</option>
+          <label for="curso">Curso/Modalidade <span class="required">*</span></label>
+          <select id="curso" name="curso" required>
+            <option value="">Selecione um curso</option>
           </select>
         </div>
         
         <div class="form-group">
-          <label for="curso">Curso/Modalidade <span class="required">*</span></label>
-          <select id="curso" name="curso" required>
-            <option value="">Primeiro selecione um plano</option>
+          <label for="plano">Plano de Pagamento <span class="required">*</span></label>
+          <select id="plano" name="plano" required>
+            <option value="">Selecione um plano</option>
           </select>
         </div>
         
@@ -484,7 +484,7 @@
         
         <div id="preco-container" class="hidden">
           <div class="preco-display" id="preco-display">
-            Selecione um curso para ver o preço
+            Selecione um curso e plano para ver o preço
           </div>
         </div>
         
@@ -532,12 +532,34 @@
       try {
         const response = await fetch('./precos.json');
         dadosPrecos = await response.json();
+        preencherCursos();
         preencherPlanos();
         preencherDescontos();
       } catch (error) {
         console.error('Erro ao carregar preços:', error);
         alert('Erro ao carregar dados de preços. Tente novamente.');
       }
+    }
+    
+    function preencherCursos() {
+      const cursoSelect = document.getElementById('curso');
+      cursoSelect.innerHTML = '<option value="">Selecione um curso</option>';
+      
+      // Adicionar cursos
+      Object.entries(dadosPrecos.cursos).forEach(([key, curso]) => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = curso.nome;
+        cursoSelect.appendChild(option);
+      });
+      
+      // Adicionar contraturnos
+      Object.entries(dadosPrecos.contraturnos).forEach(([key, contraturno]) => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = contraturno.nome;
+        cursoSelect.appendChild(option);
+      });
     }
     
     function preencherPlanos() {
@@ -562,35 +584,6 @@
         option.textContent = `${desconto.nome} (${desconto.percentual}% desconto)`;
         descontoSelect.appendChild(option);
       });
-    }
-    
-    function atualizarCursos() {
-      const planoSelecionado = document.getElementById('plano').value;
-      const cursoSelect = document.getElementById('curso');
-      
-      if (!planoSelecionado) {
-        cursoSelect.innerHTML = '<option value="">Primeiro selecione um plano</option>';
-        return;
-      }
-      
-      cursoSelect.innerHTML = '<option value="">Selecione um curso</option>';
-      
-      Object.entries(dadosPrecos.cursos).forEach(([key, curso]) => {
-        const option = document.createElement('option');
-        option.value = key;
-        option.textContent = curso.nome;
-        cursoSelect.appendChild(option);
-      });
-      
-      Object.entries(dadosPrecos.contraturnos).forEach(([key, contraturno]) => {
-        const option = document.createElement('option');
-        option.value = key;
-        option.textContent = contraturno.nome;
-        cursoSelect.appendChild(option);
-      });
-      
-      // Atualizar opções de pagamento baseado no plano
-      atualizarFormaPagamento();
     }
     
     function atualizarFormaPagamento() {
@@ -667,13 +660,14 @@
       }
     }
     
-    // Event listeners
+    // Event listeners - NOVA LÓGICA
+    document.getElementById('curso').addEventListener('change', calcularPreco);
+    
     document.getElementById('plano').addEventListener('change', function() {
-      atualizarCursos();
+      atualizarFormaPagamento();
       calcularPreco();
     });
     
-    document.getElementById('curso').addEventListener('change', calcularPreco);
     document.getElementById('desconto').addEventListener('change', calcularPreco);
     
     // Função para obter parâmetros da URL
