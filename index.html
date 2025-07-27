@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formulário de Cadastro - Quintal das Artes</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #F8F1C9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      color: #5B5B5B;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    
+    .container {
+      background-color: #ffffff;
+      padding: 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(91, 91, 91, 0.1);
+      width: 100%;
+      max-width: 480px;
+      box-sizing: border-box;
+      border: 3px solid #FAC622;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background-color: #FCD406;
+    }
+    
+    .logo-container {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .logo {
+      max-width: 200px;
+      height: auto;
+      margin-bottom: 10px;
+    }
+    
+    h1 {
+      font-size: 1.8rem;
+      color: #5B5B5B;
+      text-align: center;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+    
+    p.description {
+      font-size: 1rem;
+      color: #A0A0A0;
+      text-align: center;
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+    
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.6rem;
+      font-weight: 600;
+      color: #5B5B5B;
+      font-size: 0.95rem;
+    }
+    
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 0.9rem;
+      border: 2px solid #F8F1C9;
+      border-radius: 12px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+      background-color: #fdfdfd;
+      color: #5B5B5B;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #FAC622;
+      box-shadow: 0 0 0 3px rgba(250, 198, 34, 0.2);
+      background-color: #ffffff;
+    }
+    
+    .form-group input:hover,
+    .form-group select:hover {
+      border-color: #FCD406;
+    }
+    
+    .plano-info {
+      background-color: #F8F1C9;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 0.5rem;
+      border-left: 4px solid #FAC622;
+    }
+    
+    .preco-display {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #5B5B5B;
+      text-align: center;
+      margin: 1rem 0;
+      padding: 1rem;
+      background-color: #F8F1C9;
+      border-radius: 8px;
+      border: 2px solid #FAC622;
+    }
+    
+    .desconto-info {
+      background-color: #FCD406;
+      color: #5B5B5B;
+      padding: 0.8rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 1rem;
+      border: none;
+      border-radius: 12px;
+      background-color: #FAC622;
+      color: #5B5B5B;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 15px rgba(250, 198, 34, 0.3);
+    }
+    
+    .btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(250, 198, 34, 0.4);
+      background-color: #FCD406;
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .btn:disabled {
+      background-color: #A0A0A0;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+      color: #ffffff;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .error-message {
+      color: #e74c3c;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      background-color: #fdf2f2;
+      border-radius: 8px;
+      border-left: 4px solid #e74c3c;
+    }
+    
+    .input-error {
+      border-color: #e74c3c !important;
+      background-color: #fdf2f2 !important;
+    }
+    
+    #success-message {
+      text-align: center;
+    }
+    
+    #success-message h2 {
+      color: #FAC622;
+      margin-bottom: 1rem;
+      font-size: 1.6rem;
+    }
+    
+    #success-message p {
+      color: #5B5B5B;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    
+    #btn-ir-pagamento {
+      margin-top: 1.5rem;
+      background-color: #FCD406;
+      color: #5B5B5B;
+    }
+    
+    #btn-ir-pagamento:hover:not(:disabled) {
+      background-color: #FAC622;
+    }
+    
+    select option {
+      color: #5B5B5B;
+      background-color: #ffffff;
+    }
+    
+    ::placeholder {
+      color: #A0A0A0;
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 1.5rem;
+        margin: 10px;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      .logo {
+        max-width: 150px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="form-container">
+      <div class="logo-container">
+        <img src="https://static.wixstatic.com/media/5912b0_7236d40dc1594c2983c9ce9aefcdb731~mv2.png/v1/fill/w_368,h_350,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/logo%20quintal%20direita.png" alt="Quintal das Artes" class="logo">
+      </div>
+      
+      <h1>Formulário de Cadastro</h1>
+      <p class="description">Preencha os campos abaixo para se inscrever em nossos cursos de artes.</p>
+      
+      <form id="main-form">
+        <div class="form-group">
+          <label for="nome">Nome Completo</label>
+          <input type="text" id="nome" name="nome" required placeholder="Digite seu nome completo" />
+        </div>
+        
+        <div class="form-group">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" name="email" required placeholder="seu@email.com" />
+        </div>
+        
+        <div class="form-group">
+          <label for="telefone">Telefone</label>
+          <input type="text" id="telefone" name="telefone" required placeholder="(11) 99999-9999" />
+        </div>
+        
+        <div class="form-group">
+          <label for="cpf">CPF</label>
+          <input type="text" id="cpf" name="cpf" required placeholder="000.000.000-00" />
+          <div id="cpf-error" class="error-message hidden">CPF inválido. Por favor, verifique e tente novamente.</div>
+        </div>
+        
+        <div class="form-group">
+          <label for="plano">Plano de Pagamento</label>
+          <select id="plano" name="plano" required>
+            <option value="">Selecione um plano</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="curso">Curso/Modalidade</label>
+          <select id="curso" name="curso" required>
+            <option value="">Primeiro selecione um plano</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="desconto">Desconto Aplicável</label>
+          <select id="desconto" name="desconto">
+            <option value="">Nenhum desconto</option>
+          </select>
+        </div>
+        
+        <div id="preco-container" class="hidden">
+          <div class="preco-display" id="preco-display">
+            Selecione um curso para ver o preço
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="forma-pagamento">Forma de Pagamento</label>
+          <select id="forma-pagamento" name="forma-pagamento" required>
+            <option value="">Selecione uma opção</option>
+            <option value="cartao-credito">💳 Cartão de Crédito</option>
+            <option value="pix">🔄 PIX</option>
+            <option value="boleto">📄 Boleto</option>
+          </select>
+        </div>
+        
+        <button type="submit" id="submit-btn" class="btn">Enviar Cadastro</button>
+      </form>
+    </div>
+
+    <div id="success-message" class="hidden">
+      <div class="logo-container">
+        <img src="https://static.wixstatic.com/media/5912b0_7236d40dc1594c2983c9ce9aefcdb731~mv2.png/v1/fill/w_368,h_350,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/logo%20quintal%20direita.png" alt="Quintal das Artes" class="logo">
+      </div>
+      
+      <h2>Cadastro quase completo! 🎨</h2>
+      <p>
+        Para finalizar sua inscrição no <strong>Quintal das Artes</strong>, você precisa acessar o link de pagamento.
+      </p>
+      <p>
+        A cobrança será enviada também por <strong>e-mail</strong> e <strong>WhatsApp</strong>, com validade de <strong>até 24 horas</strong>.
+      </p>
+      <p>
+        Clique no botão abaixo para ir ao checkout e concluir sua inscrição:
+      </p>
+      <button id="btn-ir-pagamento" class="btn">Ir para o pagamento agora</button>
+    </div>
+  </div>
+
+  <script>
+    let dadosPrecos = {};
+    
+    // Carregar dados do JSON
+    async function carregarPrecos() {
+      try {
+        const response = await fetch('./precos.json');
+        dadosPrecos = await response.json();
+        preencherPlanos();
+        preencherDescontos();
+      } catch (error) {
+        console.error('Erro ao carregar preços:', error);
+        alert('Erro ao carregar dados de preços. Tente novamente.');
+      }
+    }
+    
+    function preencherPlanos() {
+      const planoSelect = document.getElementById('plano');
+      planoSelect.innerHTML = '<option value="">Selecione um plano</option>';
+      
+      Object.entries(dadosPrecos.planos).forEach(([key, plano]) => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = plano.nome;
+        planoSelect.appendChild(option);
+      });
+    }
+    
+    function preencherDescontos() {
+      const descontoSelect = document.getElementById('desconto');
+      descontoSelect.innerHTML = '<option value="">Nenhum desconto</option>';
+      
+      Object.entries(dadosPrecos.descontos).forEach(([key, desconto]) => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = `${desconto.nome} (${desconto.percentual}% desconto)`;
+        descontoSelect.appendChild(option);
+      });
+    }
+    
+    function atualizarCursos() {
+      const planoSelecionado = document.getElementById('plano').value;
+      const cursoSelect = document.getElementById('curso');
+      
+      if (!planoSelecionado) {
+        cursoSelect.innerHTML = '<option value="">Primeiro selecione um plano</option>';
+        return;
+      }
+      
+      cursoSelect.innerHTML = '<option value="">Selecione um curso</option>';
+      
+      Object.entries(dadosPrecos.cursos).forEach(([key, curso]) => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = curso.nome;
+        cursoSelect.appendChild(option);
+      });
+      
+      Object.entries(dadosPrecos.contraturnos).forEach(([key, contraturno]) => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = contraturno.nome;
+        cursoSelect.appendChild(option);
+      });
+    }
+    
+    function calcularPreco() {
+      const planoSelecionado = document.getElementById('plano').value;
+      const cursoSelecionado = document.getElementById('curso').value;
+      const descontoSelecionado = document.getElementById('desconto').value;
+      
+      if (!planoSelecionado || !cursoSelecionado) {
+        document.getElementById('preco-container').classList.add('hidden');
+        return;
+      }
+      
+      let curso = dadosPrecos.cursos[cursoSelecionado] || dadosPrecos.contraturnos[cursoSelecionado];
+      let preco = curso.precos[planoSelecionado];
+      
+      // Aplicar desconto
+      if (descontoSelecionado && dadosPrecos.descontos[descontoSelecionado]) {
+        const desconto = dadosPrecos.descontos[descontoSelecionado];
+        preco = preco * (1 - desconto.percentual / 100);
+      }
+      
+      const precoDisplay = document.getElementById('preco-display');
+      const planoInfo = dadosPrecos.planos[planoSelecionado];
+      
+      precoDisplay.innerHTML = `
+        <div><strong>${curso.nome}</strong></div>
+        <div>${planoInfo.nome}</div>
+        <div style="font-size: 1.4rem; color: #FAC622;">R\$ ${preco.toFixed(2).replace('.', ',')}/mês</div>
+        ${descontoSelecionado ? `<div style="font-size: 0.9rem; color: #27ae60;">✓ ${dadosPrecos.descontos[descontoSelecionado].nome} aplicado</div>` : ''}
+      `;
+      
+      document.getElementById('preco-container').classList.remove('hidden');
+    }
+    
+    // Event listeners
+    document.getElementById('plano').addEventListener('change', function() {
+      atualizarCursos();
+      calcularPreco();
+    });
+    
+    document.getElementById('curso').addEventListener('change', calcularPreco);
+    document.getElementById('desconto').addEventListener('change', calcularPreco);
+    
+    // Função para obter parâmetros da URL
+    function getUrlParameter(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      let value = urlParams.get(name);
+      
+      if (value && (value.startsWith('"') && value.endsWith('"'))) {
+        value = value.slice(1, -1);
+      }
+      
+      return value;
+    }
+
+    function preencherCampos() {
+      const emailParam = getUrlParameter('email');
+      if (emailParam) {
+        document.getElementById('email').value = emailParam;
+      }
+      
+      const nomeParam = getUrlParameter('nome');
+      if (nomeParam) {
+        document.getElementById('nome').value = nomeParam;
+      }
+      
+      const telefoneParam = getUrlParameter('telefone');
+      if (telefoneParam) {
+        document.getElementById('telefone').value = telefoneParam;
+      }
+      
+      const cpfParam = getUrlParameter('cpf');
+      if (cpfParam) {
+        document.getElementById('cpf').value = cpfParam;
+      }
+      
+      const formaPagamentoParam = getUrlParameter('forma_pagamento');
+      if (formaPagamentoParam) {
+        document.getElementById('forma-pagamento').value = formaPagamentoParam;
+      }
+    }
+
+    $(document).ready(function () {
+      $('#telefone').mask('(00) 00000-0000');
+      $('#cpf').mask('000.000.000-00', { reverse: true });
+      
+      carregarPrecos().then(() => {
+        preencherCampos();
+        $('#telefone').trigger('input');
+        $('#cpf').trigger('input');
+      });
+    });
+
+    let checkoutUrl = '';
+
+    document.getElementById('main-form').addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      const form = event.target;
+      const submitBtn = document.getElementById('submit-btn');
+      const cpfInput = document.getElementById('cpf');
+      const cpfError = document.getElementById('cpf-error');
+      const formContainer = document.getElementById('form-container');
+      const successMessage = document.getElementById('success-message');
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Validando...';
+      cpfError.classList.add('hidden');
+      cpfInput.classList.remove('input-error');
+
+      const cpfValue = cpfInput.value.replace(/\D/g, '');
+      const validationWebhookUrl = 'https://criadordigital-n8n-webhook.kttqgl.easypanel.host/webhook/8d12535f-d756-4fd5-b57f-040b3a620409';
+
+      try {
+        const validateResp = await fetch(validationWebhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cpf: cpfValue })
+        });
+
+        if (!validateResp.ok) throw new Error('Falha na validação do CPF.');
+        const validation = await validateResp.json();
+        if (!validation.valido) throw new Error('CPF inválido');
+
+        submitBtn.textContent = 'Enviando...';
+        const submissionWebhookUrl = 'https://criadordigital-n8n-webhook.kttqgl.easypanel.host/webhook/c51bd45c-c232-44db-8490-f52f22ae34ce';
+        const payload = Object.fromEntries(new FormData(form).entries());
+
+        const submissionResp = await fetch(submissionWebhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const submissionData = await submissionResp.json();
+        if (!submissionData.link) throw new Error('Link de pagamento não encontrado.');
+
+        checkoutUrl = submissionData.link;
+        formContainer.classList.add('hidden');
+        successMessage.classList.remove('hidden');
+      } catch (error) {
+        console.error('Erro:', error.message);
+        if (error.message === 'CPF inválido') {
+          cpfError.classList.remove('hidden');
+          cpfInput.classList.add('input-error');
+          cpfInput.focus();
+        } else {
+          alert('Erro ao enviar. Tente novamente.');
+        }
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Enviar Cadastro';
+      }
+    });
+
+    document.getElementById('btn-ir-pagamento').addEventListener('click', function () {
+      if (checkoutUrl) {
+        window.open(checkoutUrl, '_blank');
+      } else {
+        alert('Link de pagamento não disponível.');
+      }
+    });
+  </script>
+</body>
+</html>
