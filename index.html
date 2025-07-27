@@ -591,21 +591,21 @@
         <div class="form-group">
           <label for="curso">Curso/Modalidade <span class="required">*</span></label>
           <select id="curso" name="curso" required>
-            <option value="">Selecione um curso</option>
+            <option value="">Carregando cursos...</option>
           </select>
         </div>
         
         <div class="form-group">
           <label for="plano">Plano de Pagamento <span class="required">*</span></label>
           <select id="plano" name="plano" required>
-            <option value="">Selecione um plano</option>
+            <option value="">Carregando planos...</option>
           </select>
         </div>
         
         <div class="form-group">
           <label for="desconto">Desconto Aplicável</label>
           <select id="desconto" name="desconto">
-            <option value="">Nenhum desconto</option>
+            <option value="">Carregando descontos...</option>
           </select>
         </div>
         
@@ -730,6 +730,7 @@
       try {
         const response = await fetch('./precos.json');
         dadosPrecos = await response.json();
+        console.log('Dados carregados:', dadosPrecos);
         preencherCursos();
         preencherPlanos();
         preencherDescontos();
@@ -744,44 +745,52 @@
       cursoSelect.innerHTML = '<option value="">Selecione um curso</option>';
       
       // Adicionar cursos
-      Object.entries(dadosPrecos.cursos).forEach(([key, curso]) => {
-        const option = document.createElement('option');
-        option.value = key;
-        option.textContent = curso.nome;
-        cursoSelect.appendChild(option);
-      });
+      if (dadosPrecos.cursos) {
+        Object.entries(dadosPrecos.cursos).forEach(([key, curso]) => {
+          const option = document.createElement('option');
+          option.value = key;
+          option.textContent = curso.nome;
+          cursoSelect.appendChild(option);
+        });
+      }
       
       // Adicionar contraturnos
-      Object.entries(dadosPrecos.contraturnos).forEach(([key, contraturno]) => {
-        const option = document.createElement('option');
-        option.value = key;
-        option.textContent = contraturno.nome;
-        cursoSelect.appendChild(option);
-      });
+      if (dadosPrecos.contraturnos) {
+        Object.entries(dadosPrecos.contraturnos).forEach(([key, contraturno]) => {
+          const option = document.createElement('option');
+          option.value = key;
+          option.textContent = contraturno.nome;
+          cursoSelect.appendChild(option);
+        });
+      }
     }
     
     function preencherPlanos() {
       const planoSelect = document.getElementById('plano');
       planoSelect.innerHTML = '<option value="">Selecione um plano</option>';
       
-      Object.entries(dadosPrecos.planos).forEach(([key, plano]) => {
-        const option = document.createElement('option');
-        option.value = key;
-        option.textContent = plano.nome;
-        planoSelect.appendChild(option);
-      });
+      if (dadosPrecos.planos) {
+        Object.entries(dadosPrecos.planos).forEach(([key, plano]) => {
+          const option = document.createElement('option');
+          option.value = key;
+          option.textContent = plano.nome;
+          planoSelect.appendChild(option);
+        });
+      }
     }
     
     function preencherDescontos() {
       const descontoSelect = document.getElementById('desconto');
       descontoSelect.innerHTML = '<option value="">Nenhum desconto</option>';
       
-      Object.entries(dadosPrecos.descontos).forEach(([key, desconto]) => {
-        const option = document.createElement('option');
-        option.value = key;
-        option.textContent = `${desconto.nome} (${desconto.percentual}% desconto)`;
-        descontoSelect.appendChild(option);
-      });
+      if (dadosPrecos.descontos) {
+        Object.entries(dadosPrecos.descontos).forEach(([key, desconto]) => {
+          const option = document.createElement('option');
+          option.value = key;
+          option.textContent = `${desconto.nome} (${desconto.percentual}% desconto)`;
+          descontoSelect.appendChild(option);
+        });
+      }
     }
     
     function atualizarFormaPagamento() {
@@ -823,7 +832,16 @@
       }
       
       let curso = dadosPrecos.cursos[cursoSelecionado] || dadosPrecos.contraturnos[cursoSelecionado];
+      if (!curso) {
+        console.error('Curso não encontrado:', cursoSelecionado);
+        return;
+      }
+      
       let preco = curso.precos[planoSelecionado];
+      if (!preco) {
+        console.error('Preço não encontrado para plano:', planoSelecionado);
+        return;
+      }
       
       // Aplicar desconto
       if (descontoSelecionado && dadosPrecos.descontos[descontoSelecionado]) {
@@ -973,17 +991,21 @@
       }
     }
 
+    // Inicialização
     $(document).ready(function () {
+      console.log('jQuery carregado, aplicando máscaras...');
+      
       // Máscaras
       $('#telefone').mask('(00) 00000-0000');
       $('#telefone-segundo').mask('(00) 00000-0000');
       $('#cpf-responsavel').mask('000.000.000-00', { reverse: true });
       
+      console.log('Máscaras aplicadas, carregando preços...');
+      
+      // Carregar dados e preencher campos
       carregarPrecos().then(() => {
+        console.log('Preços carregados, preenchendo campos...');
         preencherCampos();
-        $('#telefone').trigger('input');
-        $('#telefone-segundo').trigger('input');
-        $('#cpf-responsavel').trigger('input');
       });
     });
 
@@ -1072,4 +1094,20 @@
           cpfInput.classList.add('input-error');
           cpfInput.focus();
         } else {
-          alert('
+          alert('Erro ao enviar. Tente novamente.');
+        }
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Enviar Cadastro';
+      }
+    });
+
+    document.getElementById('btn-ir-pagamento').addEventListener('click', function () {
+      if (checkoutUrl) {
+        window.open(checkoutUrl, '_blank');
+      } else {
+        alert('Link de pagamento não disponível.');
+      }
+    });
+  </script>
+</body>
+</html>
