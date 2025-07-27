@@ -1,0 +1,146 @@
+{
+  "planos": {
+    "mensal": {
+      "nome": "Plano Mensal",
+      "descricao": "Pagamento mensal",
+      "meses": 1
+    },
+    "bimestral": {
+      "nome": "Plano Bimestral (2 meses)",
+      "descricao": "2 meses com desconto",
+      "meses": 2
+    },
+    "quadrimestral": {
+      "nome": "Plano Quadrimestral (4 meses)",
+      "descricao": "4 meses com maior desconto",
+      "meses": 4
+    }
+  },
+  "cursos": {
+    "desenho": {
+      "nome": "DESENHO",
+      "categoria": "curso",
+      "precos": {
+        "mensal": 230,
+        "bimestral": 220,
+        "quadrimestral": 215
+      }
+    },
+    "trabalhos_manuais": {
+      "nome": "TRABALHOS MANUAIS",
+      "categoria": "curso",
+      "precos": {
+        "mensal": 260,
+        "bimestral": 250,
+        "quadrimestral": 245
+      }
+    },
+    "artes_extendido": {
+      "nome": "ARTES extendido (3 horas)",
+      "categoria": "curso",
+      "precos": {
+        "mensal": 290,
+        "bimestral": 280,
+        "quadrimestral": 275
+      }
+    },
+    "artes": {
+      "nome": "ARTES",
+      "categoria": "curso",
+      "precos": {
+        "mensal": 230,
+        "bimestral": 220,
+        "quadrimestral": 215
+      }
+    },
+    "marcenaria": {
+      "nome": "MARCENARIA",
+      "categoria": "curso",
+      "precos": {
+        "mensal": 260,
+        "bimestral": 250,
+        "quadrimestral": 245
+      }
+    },
+    "modelagem": {
+      "nome": "MODELAGEM",
+      "categoria": "curso",
+      "precos": {
+        "mensal": 260,
+        "bimestral": 255,
+        "quadrimestral": 250
+      }
+    },
+    "ingles": {
+      "nome": "INGLÊS",
+      "categoria": "curso",
+      "precos": {
+        "mensal": 260,
+        "bimestral": 255,
+        "quadrimestral": 250
+      }
+    }
+  },
+  "contraturnos": {
+    "tarde_1x": {
+      "nome": "TARDE 1x por semana (5 horas > tarde)",
+      "categoria": "contraturno",
+      "precos": {
+        "mensal": 290,
+        "bimestral": 285,
+        "quadrimestral": 280
+      }
+    },
+    "tarde_2x": {
+      "nome": "TARDE 2xs por semana (5 horas > tarde)",
+      "categoria": "contraturno",
+      "precos": {
+        "mensal": 520,
+        "bimestral": 515,
+        "quadrimestral": 510
+      }
+    },
+    "manha_1x": {
+      "nome": "MANHÃ 1x por semana (3 horas > manhã)",
+      "categoria": "contraturno",
+      "precos": {
+        "mensal": 250,
+        "bimestral": 245,
+        "quadrimestral": 240
+      }
+    },
+    "manha_2x": {
+      "nome": "MANHÃ 2xs por semana (3 horas > manhã)",
+      "categoria": "contraturno",
+      "precos": {
+        "mensal": 480,
+        "bimestral": 475,
+        "quadrimestral": 470
+      }
+    }
+  },
+  "descontos": {
+    "irmaos": {
+      "nome": "Irmãos",
+      "descricao": "Desconto para irmãos",
+      "percentual": 10,
+      "observacao": "Não cumulativo com outros descontos"
+    },
+    "filhos_professores": {
+      "nome": "Filhos de professores",
+      "descricao": "Desconto para filhos de professores",
+      "percentual": 10,
+      "observacao": "Não cumulativo com outros descontos"
+    },
+    "multiplos_cursos": {
+      "nome": "Múltiplos cursos",
+      "descricao": "Desconto no curso de menor valor ao fazer mais de um curso",
+      "percentual": 10,
+      "observacao": "Aplicado no curso de menor valor. Não cumulativo com outros descontos"
+    }
+  },
+  "observacoes": {
+    "pagamento_cartao": "Planos bimestrais e quadrimestrais podem ser pagos via cartão de crédito",
+    "descontos_nao_cumulativos": "Os descontos não são cumulativos"
+  }
+}
