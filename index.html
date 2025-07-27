@@ -26,7 +26,7 @@
       border-radius: 20px;
       box-shadow: 0 15px 35px rgba(91, 91, 91, 0.1);
       width: 100%;
-      max-width: 480px;
+      max-width: 600px;
       box-sizing: border-box;
       border: 3px solid #FAC622;
       position: relative;
@@ -82,8 +82,13 @@
       font-size: 0.95rem;
     }
     
+    .required {
+      color: #e74c3c;
+    }
+    
     .form-group input,
-    .form-group select {
+    .form-group select,
+    .form-group textarea {
       width: 100%;
       padding: 0.9rem;
       border: 2px solid #F8F1C9;
@@ -93,10 +98,17 @@
       transition: all 0.3s ease;
       background-color: #fdfdfd;
       color: #5B5B5B;
+      font-family: inherit;
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
     }
     
     .form-group input:focus,
-    .form-group select:focus {
+    .form-group select:focus,
+    .form-group textarea:focus {
       outline: none;
       border-color: #FAC622;
       box-shadow: 0 0 0 3px rgba(250, 198, 34, 0.2);
@@ -104,8 +116,42 @@
     }
     
     .form-group input:hover,
-    .form-group select:hover {
+    .form-group select:hover,
+    .form-group textarea:hover {
       border-color: #FCD406;
+    }
+    
+    .checkbox-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem;
+      background-color: #F8F1C9;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+    
+    .checkbox-item:hover {
+      background-color: #FCD406;
+    }
+    
+    .checkbox-item input[type="checkbox"] {
+      width: auto;
+      margin-right: 0.5rem;
+      transform: scale(1.2);
+    }
+    
+    .checkbox-item label {
+      margin: 0;
+      font-weight: normal;
+      cursor: pointer;
+      flex: 1;
     }
     
     .plano-info {
@@ -226,7 +272,7 @@
       color: #A0A0A0;
     }
     
-    @media (max-width: 480px) {
+    @media (max-width: 600px) {
       .container {
         padding: 1.5rem;
         margin: 10px;
@@ -238,6 +284,10 @@
       
       .logo {
         max-width: 150px;
+      }
+      
+      .checkbox-group {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -253,36 +303,130 @@
       <p class="description">Preencha os campos abaixo para se inscrever em nossos cursos de artes.</p>
       
       <form id="main-form">
+        <!-- Campos originais -->
         <div class="form-group">
-          <label for="nome">Nome Completo</label>
-          <input type="text" id="nome" name="nome" required placeholder="Digite seu nome completo" />
+          <label for="nome">Nome Completo <span class="required">*</span></label>
+          <input type="text" id="nome" name="nome" required placeholder="Digite o nome completo da criança" />
         </div>
         
         <div class="form-group">
-          <label for="email">E-mail</label>
+          <label for="email">E-mail <span class="required">*</span></label>
           <input type="email" id="email" name="email" required placeholder="seu@email.com" />
         </div>
         
+        <!-- Campo 2 - Não obrigatório -->
         <div class="form-group">
-          <label for="telefone">Telefone</label>
-          <input type="text" id="telefone" name="telefone" required placeholder="(11) 99999-9999" />
+          <label for="escola">Em qual escola estuda?</label>
+          <input type="text" id="escola" name="escola" placeholder="Nome da escola" />
         </div>
         
+        <!-- Campo 3 - Obrigatório -->
         <div class="form-group">
-          <label for="cpf">CPF</label>
-          <input type="text" id="cpf" name="cpf" required placeholder="000.000.000-00" />
+          <label for="data-nascimento">Qual a data de nascimento? <span class="required">*</span></label>
+          <input type="date" id="data-nascimento" name="data-nascimento" required />
+        </div>
+        
+        <!-- Campo 4 - Obrigatório -->
+        <div class="form-group">
+          <label for="responsavel">Qual o nome do(a) responsável? <span class="required">*</span></label>
+          <input type="text" id="responsavel" name="responsavel" required placeholder="Nome completo do responsável" />
+        </div>
+        
+        <!-- Campo 5 - Obrigatório -->
+        <div class="form-group">
+          <label for="cpf-responsavel">Qual o CPF do(a) responsável? <span class="required">*</span></label>
+          <input type="text" id="cpf-responsavel" name="cpf-responsavel" required placeholder="000.000.000-00" />
           <div id="cpf-error" class="error-message hidden">CPF inválido. Por favor, verifique e tente novamente.</div>
         </div>
         
+        <!-- Campo 6 - Obrigatório -->
         <div class="form-group">
-          <label for="plano">Plano de Pagamento</label>
+          <label for="telefone">Qual o telefone de contato? <span class="required">*</span></label>
+          <input type="text" id="telefone" name="telefone" required placeholder="(11) 99999-9999" />
+        </div>
+        
+        <!-- Campo 7 - Não obrigatório -->
+        <div class="form-group">
+          <label for="endereco">Qual o endereço?</label>
+          <textarea id="endereco" name="endereco" placeholder="Rua, número, bairro, cidade"></textarea>
+        </div>
+        
+        <!-- Campo 8 - Não obrigatório -->
+        <div class="form-group">
+          <label for="segundo-responsavel">Qual o nome do(a) segundo(a) responsável?</label>
+          <input type="text" id="segundo-responsavel" name="segundo-responsavel" placeholder="Nome completo do segundo responsável" />
+        </div>
+        
+        <!-- Campo 9 - Não obrigatório -->
+        <div class="form-group">
+          <label for="telefone-segundo">Qual o telefone de contato do segundo responsável?</label>
+          <input type="text" id="telefone-segundo" name="telefone-segundo" placeholder="(11) 99999-9999" />
+        </div>
+        
+        <!-- Campo 10 - Obrigatório -->
+        <div class="form-group">
+          <label for="restricao-alimentar">Gostaríamos de saber se a criança tem alguma restrição alimentar. Se sim, qual? <span class="required">*</span></label>
+          <textarea id="restricao-alimentar" name="restricao-alimentar" required placeholder="Descreva as restrições alimentares ou digite 'Não possui'"></textarea>
+        </div>
+        
+        <!-- Campo 11 - Obrigatório -->
+        <div class="form-group">
+          <label for="questao-saude">Gostaríamos de saber se a criança tem alguma questão de saúde. Se sim, qual? <span class="required">*</span></label>
+          <textarea id="questao-saude" name="questao-saude" required placeholder="Descreva as questões de saúde ou digite 'Não possui'"></textarea>
+        </div>
+        
+        <!-- Campo 12 - Obrigatório -->
+        <div class="form-group">
+          <label for="contato-emergencia">Em caso de emergência, quem devemos chamar? <span class="required">*</span></label>
+          <textarea id="contato-emergencia" name="contato-emergencia" required placeholder="Nome, parentesco e telefone para emergência"></textarea>
+        </div>
+        
+        <!-- Campo 13 - Obrigatório -->
+        <div class="form-group">
+          <label>Como ficou sabendo do Quintal das Artes? <span class="required">*</span></label>
+          <div class="checkbox-group">
+            <div class="checkbox-item">
+              <input type="checkbox" id="fonte-instagram" name="fonte-conhecimento" value="Instagram">
+              <label for="fonte-instagram">Instagram</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="fonte-amigos" name="fonte-conhecimento" value="Amigos">
+              <label for="fonte-amigos">Amigos</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="fonte-escola" name="fonte-conhecimento" value="Na escola">
+              <label for="fonte-escola">Na escola</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="fonte-casa-lebre" name="fonte-conhecimento" value="Casa Lebre">
+              <label for="fonte-casa-lebre">Casa Lebre</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="fonte-flyer" name="fonte-conhecimento" value="Flyer">
+              <label for="fonte-flyer">Flyer</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="fonte-eventos" name="fonte-conhecimento" value="Eventos no Quintal">
+              <label for="fonte-eventos">Eventos no Quintal</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="fonte-passei" name="fonte-conhecimento" value="Passei em frente">
+              <label for="fonte-passei">Passei em frente</label>
+            </div>
+          </div>
+          <div id="fonte-error" class="error-message hidden">Por favor, selecione pelo menos uma opção.</div>
+        </div>
+        
+        <!-- Campos de curso e pagamento -->
+        <div class="form-group">
+          <label for="plano">Plano de Pagamento <span class="required">*</span></label>
           <select id="plano" name="plano" required>
             <option value="">Selecione um plano</option>
           </select>
         </div>
         
         <div class="form-group">
-          <label for="curso">Curso/Modalidade</label>
+          <label for="curso">Curso/Modalidade <span class="required">*</span></label>
           <select id="curso" name="curso" required>
             <option value="">Primeiro selecione um plano</option>
           </select>
@@ -302,7 +446,7 @@
         </div>
         
         <div class="form-group">
-          <label for="forma-pagamento">Forma de Pagamento</label>
+          <label for="forma-pagamento">Forma de Pagamento <span class="required">*</span></label>
           <select id="forma-pagamento" name="forma-pagamento" required>
             <option value="">Selecione uma opção</option>
             <option value="cartao-credito">💳 Cartão de Crédito</option>
@@ -432,6 +576,20 @@
       document.getElementById('preco-container').classList.remove('hidden');
     }
     
+    // Validação de checkbox
+    function validarFonteConhecimento() {
+      const checkboxes = document.querySelectorAll('input[name="fonte-conhecimento"]:checked');
+      const erro = document.getElementById('fonte-error');
+      
+      if (checkboxes.length === 0) {
+        erro.classList.remove('hidden');
+        return false;
+      } else {
+        erro.classList.add('hidden');
+        return true;
+      }
+    }
+    
     // Event listeners
     document.getElementById('plano').addEventListener('change', function() {
       atualizarCursos();
@@ -469,11 +627,6 @@
         document.getElementById('telefone').value = telefoneParam;
       }
       
-      const cpfParam = getUrlParameter('cpf');
-      if (cpfParam) {
-        document.getElementById('cpf').value = cpfParam;
-      }
-      
       const formaPagamentoParam = getUrlParameter('forma_pagamento');
       if (formaPagamentoParam) {
         document.getElementById('forma-pagamento').value = formaPagamentoParam;
@@ -481,13 +634,16 @@
     }
 
     $(document).ready(function () {
+      // Máscaras
       $('#telefone').mask('(00) 00000-0000');
-      $('#cpf').mask('000.000.000-00', { reverse: true });
+      $('#telefone-segundo').mask('(00) 00000-0000');
+      $('#cpf-responsavel').mask('000.000.000-00', { reverse: true });
       
       carregarPrecos().then(() => {
         preencherCampos();
         $('#telefone').trigger('input');
-        $('#cpf').trigger('input');
+        $('#telefone-segundo').trigger('input');
+        $('#cpf-responsavel').trigger('input');
       });
     });
 
@@ -498,10 +654,16 @@
 
       const form = event.target;
       const submitBtn = document.getElementById('submit-btn');
-      const cpfInput = document.getElementById('cpf');
+      const cpfInput = document.getElementById('cpf-responsavel');
       const cpfError = document.getElementById('cpf-error');
       const formContainer = document.getElementById('form-container');
       const successMessage = document.getElementById('success-message');
+
+      // Validar fonte de conhecimento
+      if (!validarFonteConhecimento()) {
+        document.getElementById('fonte-instagram').focus();
+        return;
+      }
 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Validando...';
@@ -524,7 +686,24 @@
 
         submitBtn.textContent = 'Enviando...';
         const submissionWebhookUrl = 'https://criadordigital-n8n-webhook.kttqgl.easypanel.host/webhook/c51bd45c-c232-44db-8490-f52f22ae34ce';
-        const payload = Object.fromEntries(new FormData(form).entries());
+        
+        // Preparar dados do formulário
+        const formData = new FormData(form);
+        const payload = {};
+        
+        // Processar campos normais
+        for (let [key, value] of formData.entries()) {
+          if (key !== 'fonte-conhecimento') {
+            payload[key] = value;
+          }
+        }
+        
+        // Processar checkboxes de fonte de conhecimento
+        const fontesConhecimento = [];
+        document.querySelectorAll('input[name="fonte-conhecimento"]:checked').forEach(checkbox => {
+          fontesConhecimento.push(checkbox.value);
+        });
+        payload['fonte-conhecimento'] = fontesConhecimento.join(', ');
 
         const submissionResp = await fetch(submissionWebhookUrl, {
           method: 'POST',
