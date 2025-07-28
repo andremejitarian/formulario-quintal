@@ -1,6 +1,15 @@
 let dadosPrecos = {};
 let checkoutUrl = '';
 
+// ===== FUNÇÃO PARA CALCULAR PREÇO COM TAXA DO CARTÃO =====
+function calcularPrecoComTaxa(valorLiquido) {
+  const taxaPercentual = 0.0399; // 3,99%
+  const taxaFixa = 0.49;         // R\$ 0,49 fixo
+
+  const preco = (valorLiquido + taxaFixa) / (1 - taxaPercentual);
+  return parseFloat(preco.toFixed(2)); // retorna como número com 2 casas decimais
+}
+
 // ===== CARREGAMENTO DE DADOS =====
 async function carregarPrecos() {
   try {
@@ -98,9 +107,15 @@ function calcularPreco() {
   const planoSelecionado = document.getElementById('plano').value;
   const cursoSelecionado = document.getElementById('curso').value;
   const descontoSelecionado = document.getElementById('desconto').value;
+  const formaPagamento = document.getElementById('forma-pagamento').value;
   
   if (!planoSelecionado || !cursoSelecionado) {
     document.getElementById('preco-container').classList.add('hidden');
+    // Limpar aviso de taxa se existir
+    const avisoTaxa = document.getElementById('aviso-taxa-cartao');
+    if (avisoTaxa) {
+      avisoTaxa.remove();
+    }
     return;
   }
   
@@ -116,13 +131,39 @@ function calcularPreco() {
     return;
   }
   
+  // Aplicar desconto se selecionado
   if (descontoSelecionado && dadosPrecos.descontos[descontoSelecionado]) {
     const desconto = dadosPrecos.descontos[descontoSelecionado];
     preco = preco * (1 - desconto.percentual / 100);
   }
   
-// 🟨 ATUALIZA O CAMPO OCULTO COM O VALOR FINAL
-  document.getElementById('valor_calculado').value = preco.toFixed(2);
+  // Verificar se é plano mensal e forma de pagamento é cartão
+  const isPlanoMensal = planoSelecionado === 'mensal';
+  const isCartaoCredito = formaPagamento === 'cartao-credito';
+  let precoFinal = preco;
+  let avisoTaxa = '';
+  
+  if (isPlanoMensal && isCartaoCredito) {
+    precoFinal = calcularPrecoComTaxa(preco);
+    avisoTaxa = `
+      <div id="aviso-taxa-cartao" style="
+        background-color: #fff3cd; 
+        border: 1px solid #ffeaa7; 
+        border-radius: 5px; 
+        padding: 10px; 
+        margin-top: 10px; 
+        font-size: 0.9rem; 
+        color: #856404;
+      ">
+        ⚠️ <strong>Atenção:</strong> Para planos mensais pagos no cartão de crédito, há um acréscimo de taxa de processamento de 3,99% + R\$ 0,49.
+        <br>
+        <small>Valor original: R\$ ${preco.toFixed(2).replace('.', ',')} | Valor com taxa: R\$ ${precoFinal.toFixed(2).replace('.', ',')}</small>
+      </div>
+    `;
+  }
+
+  // Atualizar o campo oculto com o valor final
+  document.getElementById('valor_calculado').value = precoFinal.toFixed(2);
 
   const precoDisplay = document.getElementById('preco-display');
   const planoInfo = dadosPrecos.planos[planoSelecionado];
@@ -130,8 +171,9 @@ function calcularPreco() {
   precoDisplay.innerHTML = `
     <div><strong>${curso.nome}</strong></div>
     <div>${planoInfo.nome}</div>
-    <div style="font-size: 1.4rem; color: #FAC622;">R\$ ${preco.toFixed(2).replace('.', ',')}/mês</div>
+    <div style="font-size: 1.4rem; color: #FAC622;">R\$ ${precoFinal.toFixed(2).replace('.', ',')}/mês</div>
     ${descontoSelecionado ? `<div style="font-size: 0.9rem; color: #27ae60;">✓ ${dadosPrecos.descontos[descontoSelecionado].nome} aplicado</div>` : ''}
+    ${avisoTaxa}
   `;
   
   document.getElementById('preco-container').classList.remove('hidden');
@@ -179,7 +221,6 @@ async function validarCPF(cpf) {
     return { valido: false, erro: 'Erro de conexão. Tente novamente.' };
   }
 }
-
 
 // ===== VALIDAÇÕES =====
 function validarFonteConhecimento() {
@@ -413,6 +454,9 @@ $(document).ready(function () {
     calcularPreco();
   });
   document.getElementById('desconto').addEventListener('change', calcularPreco);
+  // ✅ NOVO: Event listener para forma de pagamento
+  document.getElementById('forma-pagamento').addEventListener('change', calcularPreco);
+  
   document.getElementById('btn-next-step').addEventListener('click', irParaSegundaTela);
   document.getElementById('btn-back-step').addEventListener('click', voltarParaPrimeiraTela);
   document.getElementById('step-2-form').addEventListener('submit', enviarFormulario);
