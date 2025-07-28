@@ -3,17 +3,20 @@
     "mensal": {
       "nome": "Plano Mensal",
       "descricao": "Pagamento mensal",
-      "meses": 1
+      "meses": 1,
+      "parcelas": 1
     },
     "bimestral": {
       "nome": "Plano Bimestral (2 meses)",
       "descricao": "2 meses com desconto",
-      "meses": 2
+      "meses": 2,
+      "parcelas": 2
     },
     "quadrimestral": {
       "nome": "Plano Quadrimestral (4 meses)",
       "descricao": "4 meses com maior desconto",
-      "meses": 4
+      "meses": 4,
+      "parcelas": 4
     }
   },
   "cursos": {
