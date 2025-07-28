@@ -74,7 +74,7 @@ function atualizarFormaPagamento() {
   const paymentInfo = document.getElementById('payment-info');
   const cartaoOption = formaPagamentoSelect.querySelector('option[value="cartao-credito"]');
   
-  const permiteCartao = planoSelecionado === 'bimestral' || planoSelecionado === 'quadrimestral';
+  const permiteCartao = planoSelecionado === 'mensal' || planoSelecionado === 'bimestral' || planoSelecionado === 'quadrimestral';
   
   if (permiteCartao) {
     cartaoOption.disabled = false;
