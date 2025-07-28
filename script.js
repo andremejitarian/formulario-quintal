@@ -82,7 +82,7 @@ function atualizarFormaPagamento() {
     paymentInfo.classList.add('hidden');
   } else {
     cartaoOption.disabled = true;
-    cartaoOption.textContent = '💳 Cartão de Crédito (disponível apenas para planos bimestral e quadrimestral)';
+    cartaoOption.textContent = '�� Cartão de Crédito (disponível apenas para planos bimestral e quadrimestral)';
     
     if (formaPagamentoSelect.value === 'cartao-credito') {
       formaPagamentoSelect.value = '';
@@ -134,7 +134,7 @@ function calcularPreco() {
   document.getElementById('preco-container').classList.remove('hidden');
 }
 
-// ===== VALIDAÇÃO DE CPF =====
+// ===== VALIDAÇÃO DE CPF CORRIGIDA =====
 async function validarCPF(cpf) {
   const cpfLimpo = cpf.replace(/\D/g, '');
   
@@ -155,13 +155,23 @@ async function validarCPF(cpf) {
       return { valido: false, erro: 'Erro na validação do CPF. Tente novamente.' };
     }
     
-    // A resposta é diretamente true ou false
-    const isValid = await response.json();
+    // A resposta é um array com um objeto: [{"cpf": "37253200000", "valido": false}]
+    const responseData = await response.json();
+    console.log('Resposta do webhook CPF:', responseData); // Debug
     
-    return { 
-      valido: isValid === true, 
-      erro: isValid === true ? null : 'CPF inválido. Por favor, verifique e tente novamente.' 
-    };
+    // Verifica se a resposta tem o formato esperado
+    if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].hasOwnProperty('valido')) {
+      const isValid = responseData[0].valido;
+      
+      return { 
+        valido: isValid === true, 
+        erro: isValid === true ? null : 'CPF inválido. Por favor, verifique e tente novamente.' 
+      };
+    } else {
+      // Formato de resposta inesperado
+      console.error('Formato de resposta inesperado:', responseData);
+      return { valido: false, erro: 'Erro na validação do CPF. Tente novamente.' };
+    }
     
   } catch (error) {
     console.error('Erro na validação do CPF:', error);
@@ -254,12 +264,12 @@ async function irParaSegundaTela() {
   const resultadoValidacao = await validarCPF(cpfInput.value);
   
   if (resultadoValidacao.valido) {
-    // CPF válido (resposta = true) - avança para próxima tela
+    // CPF válido - avança para próxima tela
     document.getElementById('form-step-1').classList.add('hidden');
     document.getElementById('form-step-2').classList.remove('hidden');
     window.scrollTo(0, 0);
   } else {
-    // CPF inválido (resposta = false) - mostra erro
+    // CPF inválido - mostra erro
     cpfError.textContent = resultadoValidacao.erro;
     cpfError.classList.remove('hidden');
     cpfInput.classList.add('input-error');
