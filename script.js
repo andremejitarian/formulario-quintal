@@ -137,14 +137,14 @@ function calcularPreco() {
 // ===== VALIDAÇÃO DE CPF CORRIGIDA =====
 async function validarCPF(cpf) {
   const cpfLimpo = cpf.replace(/\D/g, '');
-  
+
   if (cpfLimpo.length !== 11) {
     return { valido: false, erro: 'CPF deve ter 11 dígitos' };
   }
-  
+
   try {
     const validationWebhookUrl = 'https://criadordigital-n8n-webhook.kttqgl.easypanel.host/webhook/8d12535f-d756-4fd5-b57f-040b3a620409';
-    
+
     const response = await fetch(validationWebhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -154,30 +154,29 @@ async function validarCPF(cpf) {
     if (!response.ok) {
       return { valido: false, erro: 'Erro na validação do CPF. Tente novamente.' };
     }
-    
-    // A resposta é um array com um objeto: [{"cpf": "37253200000", "valido": false}]
+
     const responseData = await response.json();
     console.log('Resposta do webhook CPF:', responseData); // Debug
-    
-    // Verifica se a resposta tem o formato esperado
-    if (Array.isArray(responseData) && responseData.length > 0 && responseData[0].hasOwnProperty('valido')) {
-      const isValid = responseData[0].valido;
-      
-      return { 
-        valido: isValid === true, 
-        erro: isValid === true ? null : 'CPF inválido. Por favor, verifique e tente novamente.' 
+
+    // Suporte para array ou objeto simples
+    const data = Array.isArray(responseData) ? responseData[0] : responseData;
+
+    if (data && typeof data.valido === 'boolean') {
+      return {
+        valido: data.valido === true,
+        erro: data.valido === true ? null : 'CPF inválido. Por favor, verifique e tente novamente.'
       };
     } else {
-      // Formato de resposta inesperado
       console.error('Formato de resposta inesperado:', responseData);
       return { valido: false, erro: 'Erro na validação do CPF. Tente novamente.' };
     }
-    
+
   } catch (error) {
     console.error('Erro na validação do CPF:', error);
     return { valido: false, erro: 'Erro de conexão. Tente novamente.' };
   }
 }
+
 
 // ===== VALIDAÇÕES =====
 function validarFonteConhecimento() {
