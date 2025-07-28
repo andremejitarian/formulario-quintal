@@ -134,6 +134,41 @@ function calcularPreco() {
   document.getElementById('preco-container').classList.remove('hidden');
 }
 
+// ===== VALIDAÇÃO DE CPF =====
+async function validarCPF(cpf) {
+  const cpfLimpo = cpf.replace(/\D/g, '');
+  
+  if (cpfLimpo.length !== 11) {
+    return { valido: false, erro: 'CPF deve ter 11 dígitos' };
+  }
+  
+  try {
+    const validationWebhookUrl = 'https://criadordigital-n8n-webhook.kttqgl.easypanel.host/webhook/8d12535f-d756-4fd5-b57f-040b3a620409';
+    
+    const response = await fetch(validationWebhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cpf: cpfLimpo })
+    });
+
+    if (!response.ok) {
+      return { valido: false, erro: 'Erro na validação do CPF. Tente novamente.' };
+    }
+    
+    // A resposta é diretamente true ou false
+    const isValid = await response.json();
+    
+    return { 
+      valido: isValid === true, 
+      erro: isValid === true ? null : 'CPF inválido. Por favor, verifique e tente novamente.' 
+    };
+    
+  } catch (error) {
+    console.error('Erro na validação do CPF:', error);
+    return { valido: false, erro: 'Erro de conexão. Tente novamente.' };
+  }
+}
+
 // ===== VALIDAÇÕES =====
 function validarFonteConhecimento() {
   const checkboxes = document.querySelectorAll('input[name="fonte-conhecimento"]:checked');
@@ -195,15 +230,45 @@ function validarSegundaEtapa() {
   return valido;
 }
 
-// ===== NAVEGAÇÃO =====
-function irParaSegundaTela() {
-  if (validarPrimeiraEtapa()) {
+// ===== NAVEGAÇÃO ATUALIZADA =====
+async function irParaSegundaTela() {
+  // Primeiro valida os campos obrigatórios
+  if (!validarPrimeiraEtapa()) {
+    alert('Por favor, preencha todos os campos obrigatórios antes de continuar.');
+    return;
+  }
+
+  const btnContinuar = document.getElementById('btn-next-step');
+  const cpfInput = document.getElementById('cpf-responsavel');
+  const cpfError = document.getElementById('cpf-error');
+  
+  // Desabilita o botão e mostra loading
+  btnContinuar.disabled = true;
+  btnContinuar.textContent = 'Validando CPF...';
+  
+  // Limpa erros anteriores
+  cpfError.classList.add('hidden');
+  cpfInput.classList.remove('input-error');
+  
+  // Valida o CPF
+  const resultadoValidacao = await validarCPF(cpfInput.value);
+  
+  if (resultadoValidacao.valido) {
+    // CPF válido (resposta = true) - avança para próxima tela
     document.getElementById('form-step-1').classList.add('hidden');
     document.getElementById('form-step-2').classList.remove('hidden');
     window.scrollTo(0, 0);
   } else {
-    alert('Por favor, preencha todos os campos obrigatórios antes de continuar.');
+    // CPF inválido (resposta = false) - mostra erro
+    cpfError.textContent = resultadoValidacao.erro;
+    cpfError.classList.remove('hidden');
+    cpfInput.classList.add('input-error');
+    cpfInput.focus();
   }
+  
+  // Restaura o botão
+  btnContinuar.disabled = false;
+  btnContinuar.textContent = 'Continuar para Termos e Condições';
 }
 
 function voltarParaPrimeiraTela() {
@@ -246,7 +311,7 @@ function preencherCampos() {
   }
 }
 
-// ===== ENVIO DO FORMULÁRIO =====
+// ===== ENVIO DO FORMULÁRIO SIMPLIFICADO =====
 async function enviarFormulario(event) {
   event.preventDefault();
 
@@ -255,29 +320,13 @@ async function enviarFormulario(event) {
   }
 
   const submitBtn = document.getElementById('submit-btn');
-  const cpfInput = document.getElementById('cpf-responsavel');
-  const cpfError = document.getElementById('cpf-error');
   const step2Container = document.getElementById('form-step-2');
   const successMessage = document.getElementById('success-message');
 
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Validando...';
-
-  const cpfValue = cpfInput.value.replace(/\D/g, '');
-  const validationWebhookUrl = 'https://criadordigital-n8n-webhook.kttqgl.easypanel.host/webhook/8d12535f-d756-4fd5-b57f-040b3a620409';
+  submitBtn.textContent = 'Enviando...';
 
   try {
-    const validateResp = await fetch(validationWebhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cpf: cpfValue })
-    });
-
-    if (!validateResp.ok) throw new Error('Falha na validação do CPF.');
-    const validation = await validateResp.json();
-    if (!validation.valido) throw new Error('CPF inválido');
-
-    submitBtn.textContent = 'Enviando...';
     const submissionWebhookUrl = 'https://criadordigital-n8n-webhook.kttqgl.easypanel.host/webhook/c51bd45c-c232-44db-8490-f52f22ae34ce';
     
     const step1Form = document.getElementById('step-1-form');
@@ -286,16 +335,19 @@ async function enviarFormulario(event) {
     const formData2 = new FormData(step2Form);
     const payload = {};
     
+    // Processar dados da primeira etapa
     for (let [key, value] of formData1.entries()) {
       if (key !== 'fonte-conhecimento') {
         payload[key] = value;
       }
     }
     
+    // Processar dados da segunda etapa
     for (let [key, value] of formData2.entries()) {
       payload[key] = value;
     }
     
+    // Processar checkboxes de fonte de conhecimento
     const fontesConhecimento = [];
     document.querySelectorAll('input[name="fonte-conhecimento"]:checked').forEach(checkbox => {
       fontesConhecimento.push(checkbox.value);
@@ -317,15 +369,7 @@ async function enviarFormulario(event) {
     window.scrollTo(0, 0);
   } catch (error) {
     console.error('Erro:', error.message);
-    if (error.message === 'CPF inválido') {
-      document.getElementById('form-step-2').classList.add('hidden');
-      document.getElementById('form-step-1').classList.remove('hidden');
-      cpfError.classList.remove('hidden');
-      cpfInput.classList.add('input-error');
-      cpfInput.focus();
-    } else {
-      alert('Erro ao enviar. Tente novamente.');
-    }
+    alert('Erro ao enviar. Tente novamente.');
     submitBtn.disabled = false;
     submitBtn.textContent = 'Enviar Cadastro';
   }
