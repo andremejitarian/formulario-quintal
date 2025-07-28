@@ -249,11 +249,14 @@ p.description {
 }
 
 .terms-checkbox {
+  display: flex;
+  align-items: center;
   background-color: #e8f4fd;
   border: 2px solid #bee5eb;
   padding: 1rem;
   border-radius: 8px;
   margin: 1rem 0;
+  gap: 0.8rem;
 }
 
 .terms-checkbox input[type="checkbox"] {
