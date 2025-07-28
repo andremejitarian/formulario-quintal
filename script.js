@@ -121,6 +121,9 @@ function calcularPreco() {
     preco = preco * (1 - desconto.percentual / 100);
   }
   
+// 🟨 ATUALIZA O CAMPO OCULTO COM O VALOR FINAL
+  document.getElementById('valor_calculado').value = preco.toFixed(2);
+
   const precoDisplay = document.getElementById('preco-display');
   const planoInfo = dadosPrecos.planos[planoSelecionado];
   
