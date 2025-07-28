@@ -10,15 +10,16 @@ function calcularPrecoComTaxa(valorLiquido) {
   return parseFloat(preco.toFixed(2)); // retorna como número com 2 casas decimais
 }
 
-// ===== NOVA FUNÇÃO PARA CALCULAR QUANTIDADE DE PARCELAS =====
+// ===== FUNÇÃO CORRIGIDA PARA CALCULAR QUANTIDADE DE PARCELAS =====
 function calcularQuantidadeParcelas(plano) {
-  const parcelasMap = {
-    'mensal': 1,
-    'bimestral': 2,
-    'quadrimestral': 4
-  };
+  // Ler do arquivo precos.json carregado
+  if (dadosPrecos.planos && dadosPrecos.planos[plano] && dadosPrecos.planos[plano].parcelas) {
+    return dadosPrecos.planos[plano].parcelas;
+  }
   
-  return parcelasMap[plano] || 1;
+  // Fallback caso não encontre no JSON
+  console.warn(`Parcelas não encontradas para o plano: ${plano}. Usando valor padrão: 1`);
+  return 1;
 }
 
 // ===== CARREGAMENTO DE DADOS =====
@@ -127,6 +128,11 @@ function calcularPreco() {
     if (avisoTaxa) {
       avisoTaxa.remove();
     }
+    // Limpar campo de parcelas quando não há seleção
+    const campoQuantidadeParcelas = document.getElementById('quantidade_parcelas');
+    if (campoQuantidadeParcelas) {
+      campoQuantidadeParcelas.value = '';
+    }
     return;
   }
   
@@ -176,11 +182,14 @@ function calcularPreco() {
   // Atualizar o campo oculto com o valor final
   document.getElementById('valor_calculado').value = precoFinal.toFixed(2);
   
-  // ===== NOVO: ATUALIZAR CAMPO OCULTO COM QUANTIDADE DE PARCELAS =====
+  // ===== ATUALIZAR CAMPO OCULTO COM QUANTIDADE DE PARCELAS =====
   const quantidadeParcelas = calcularQuantidadeParcelas(planoSelecionado);
   const campoQuantidadeParcelas = document.getElementById('quantidade_parcelas');
   if (campoQuantidadeParcelas) {
     campoQuantidadeParcelas.value = quantidadeParcelas;
+    console.log(`Quantidade de parcelas definida: ${quantidadeParcelas} para o plano: ${planoSelecionado}`); // Debug
+  } else {
+    console.error('Campo quantidade_parcelas não encontrado no HTML!');
   }
 
   const precoDisplay = document.getElementById('preco-display');
@@ -477,7 +486,9 @@ async function enviarFormulario(event) {
     });
     payload['fonte-conhecimento'] = fontesConhecimento.join(', ');
 
-    console.log('Payload final:', payload); // Para debug - você verá o campo curso-plano-completo aqui
+    // ===== DEBUG PARA VERIFICAR SE O CAMPO PARCELAS ESTÁ SENDO ENVIADO =====
+    console.log('Payload final completo:', payload);
+    console.log('Campo quantidade_parcelas no payload:', payload['quantidade_parcelas']);
 
     const submissionResp = await fetch(submissionWebhookUrl, {
       method: 'POST',
