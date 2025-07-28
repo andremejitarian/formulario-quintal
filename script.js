@@ -10,6 +10,17 @@ function calcularPrecoComTaxa(valorLiquido) {
   return parseFloat(preco.toFixed(2)); // retorna como número com 2 casas decimais
 }
 
+// ===== NOVA FUNÇÃO PARA CALCULAR QUANTIDADE DE PARCELAS =====
+function calcularQuantidadeParcelas(plano) {
+  const parcelasMap = {
+    'mensal': 1,
+    'bimestral': 2,
+    'quadrimestral': 4
+  };
+  
+  return parcelasMap[plano] || 1;
+}
+
 // ===== CARREGAMENTO DE DADOS =====
 async function carregarPrecos() {
   try {
@@ -164,6 +175,13 @@ function calcularPreco() {
 
   // Atualizar o campo oculto com o valor final
   document.getElementById('valor_calculado').value = precoFinal.toFixed(2);
+  
+  // ===== NOVO: ATUALIZAR CAMPO OCULTO COM QUANTIDADE DE PARCELAS =====
+  const quantidadeParcelas = calcularQuantidadeParcelas(planoSelecionado);
+  const campoQuantidadeParcelas = document.getElementById('quantidade_parcelas');
+  if (campoQuantidadeParcelas) {
+    campoQuantidadeParcelas.value = quantidadeParcelas;
+  }
 
   const precoDisplay = document.getElementById('preco-display');
   const planoInfo = dadosPrecos.planos[planoSelecionado];
@@ -416,7 +434,7 @@ async function enviarFormulario(event) {
     const step1Form = document.getElementById('step-1-form');
     const step2Form = document.getElementById('step-2-form');
     
-    // ===== NOVO: ADICIONAR CAMPO COMBINADO ANTES DO ENVIO =====
+    // ===== ADICIONAR CAMPO COMBINADO ANTES DO ENVIO =====
     const cursoPlanoCompleto = getCursoPlanoCompleto();
     if (cursoPlanoCompleto) {
       // Verificar se já existe um campo com esse nome (evitar duplicatas)
@@ -435,7 +453,6 @@ async function enviarFormulario(event) {
       
       console.log('Campo combinado adicionado:', cursoPlanoCompleto); // Para debug
     }
-    // ===== FIM DA MODIFICAÇÃO =====
     
     const formData1 = new FormData(step1Form);
     const formData2 = new FormData(step2Form);
@@ -509,7 +526,7 @@ $(document).ready(function () {
     calcularPreco();
   });
   document.getElementById('desconto').addEventListener('change', calcularPreco);
-  // ✅ NOVO: Event listener para forma de pagamento
+  // Event listener para forma de pagamento
   document.getElementById('forma-pagamento').addEventListener('change', calcularPreco);
   
   document.getElementById('btn-next-step').addEventListener('click', irParaSegundaTela);
