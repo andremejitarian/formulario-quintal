@@ -91,7 +91,7 @@ function atualizarFormaPagamento() {
     paymentInfo.classList.add('hidden');
   } else {
     cartaoOption.disabled = true;
-    cartaoOption.textContent = '�� Cartão de Crédito (disponível apenas para planos bimestral e quadrimestral)';
+    cartaoOption.textContent = '💳 Cartão de Crédito (disponível apenas para planos bimestral e quadrimestral)';
     
     if (formaPagamentoSelect.value === 'cartao-credito') {
       formaPagamentoSelect.value = '';
@@ -177,6 +177,37 @@ function calcularPreco() {
   `;
   
   document.getElementById('preco-container').classList.remove('hidden');
+}
+
+// ===== FUNÇÃO PARA OBTER CURSO + PLANO COMBINADOS =====
+function getCursoPlanoCompleto() {
+  const cursoSelecionado = document.getElementById('curso').value;
+  const planoSelecionado = document.getElementById('plano').value;
+  
+  if (!cursoSelecionado || !planoSelecionado) {
+    return '';
+  }
+  
+  // Buscar o nome do curso
+  let nomeCurso = '';
+  if (dadosPrecos.cursos && dadosPrecos.cursos[cursoSelecionado]) {
+    nomeCurso = dadosPrecos.cursos[cursoSelecionado].nome;
+  } else if (dadosPrecos.contraturnos && dadosPrecos.contraturnos[cursoSelecionado]) {
+    nomeCurso = dadosPrecos.contraturnos[cursoSelecionado].nome;
+  }
+  
+  // Buscar o nome do plano
+  let nomePlano = '';
+  if (dadosPrecos.planos && dadosPrecos.planos[planoSelecionado]) {
+    nomePlano = dadosPrecos.planos[planoSelecionado].nome;
+  }
+  
+  // Retornar combinação
+  if (nomeCurso && nomePlano) {
+    return `${nomeCurso} - ${nomePlano}`;
+  }
+  
+  return '';
 }
 
 // ===== VALIDAÇÃO DE CPF CORRIGIDA =====
@@ -364,7 +395,7 @@ function preencherCampos() {
   }
 }
 
-// ===== ENVIO DO FORMULÁRIO SIMPLIFICADO =====
+// ===== ENVIO DO FORMULÁRIO MODIFICADO =====
 async function enviarFormulario(event) {
   event.preventDefault();
 
@@ -384,6 +415,28 @@ async function enviarFormulario(event) {
     
     const step1Form = document.getElementById('step-1-form');
     const step2Form = document.getElementById('step-2-form');
+    
+    // ===== NOVO: ADICIONAR CAMPO COMBINADO ANTES DO ENVIO =====
+    const cursoPlanoCompleto = getCursoPlanoCompleto();
+    if (cursoPlanoCompleto) {
+      // Verificar se já existe um campo com esse nome (evitar duplicatas)
+      const campoExistente = step1Form.querySelector('input[name="curso-plano-completo"]');
+      if (campoExistente) {
+        campoExistente.remove();
+      }
+      
+      // Criar e adicionar o campo hidden
+      const campoHidden = document.createElement('input');
+      campoHidden.type = 'hidden';
+      campoHidden.name = 'curso-plano-completo';
+      campoHidden.value = cursoPlanoCompleto;
+      
+      step1Form.appendChild(campoHidden);
+      
+      console.log('Campo combinado adicionado:', cursoPlanoCompleto); // Para debug
+    }
+    // ===== FIM DA MODIFICAÇÃO =====
+    
     const formData1 = new FormData(step1Form);
     const formData2 = new FormData(step2Form);
     const payload = {};
@@ -406,6 +459,8 @@ async function enviarFormulario(event) {
       fontesConhecimento.push(checkbox.value);
     });
     payload['fonte-conhecimento'] = fontesConhecimento.join(', ');
+
+    console.log('Payload final:', payload); // Para debug - você verá o campo curso-plano-completo aqui
 
     const submissionResp = await fetch(submissionWebhookUrl, {
       method: 'POST',
