@@ -60,15 +60,6 @@
       "nome": "ARTES // quarta tarde (14H > 15H30) // 6 a 11 anos // Educadora Maria Fernanda",
       "categoria": "curso",
       "precos": {
-        "mensal": 290,
-        "bimestral": 280,
-        "quadrimestral": 275
-      }
-    },
-    "artes": {
-      "nome": "ARTES",
-      "categoria": "curso",
-      "precos": {
         "mensal": 230,
         "bimestral": 220,
         "quadrimestral": 215
@@ -139,8 +130,8 @@
     }
   },
   "contraturnos": {
-    "tarde_1x": {
-      "nome": "TARDE 1x por semana (5 horas > tarde)",
+    "contraturno_tarde_1x": {
+      "nome": "CONTRATURNO TARDE 1x por semana",
       "categoria": "contraturno",
       "precos": {
         "mensal": 290,
@@ -148,8 +139,8 @@
         "quadrimestral": 280
       }
     },
-    "tarde_2x": {
-      "nome": "TARDE 2xs por semana (5 horas > tarde)",
+    "contraturno_tarde_2x": {
+      "nome": "CONTRATURNO TARDE 2x por semana",
       "categoria": "contraturno",
       "precos": {
         "mensal": 520,
@@ -157,8 +148,8 @@
         "quadrimestral": 510
       }
     },
-    "manha_1x": {
-      "nome": "MANHÃ 1x por semana (3 horas > manhã)",
+    "contraturno_manha_1x": {
+      "nome": "CONTRATURNO MANHÃ 1x por semana",
       "categoria": "contraturno",
       "precos": {
         "mensal": 250,
@@ -166,8 +157,8 @@
         "quadrimestral": 240
       }
     },
-    "manha_2x": {
-      "nome": "MANHÃ 2xs por semana (3 horas > manhã)",
+    "contraturno_manha_2x": {
+      "nome": "CONTRATURNO MANHÃ 2x por semana",
       "categoria": "contraturno",
       "precos": {
         "mensal": 480,
