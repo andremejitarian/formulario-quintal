@@ -88,6 +88,23 @@ function preencherDescontos() {
   }
 }
 
+// ===== NOVA FUNÇÃO PARA CONTROLAR VISIBILIDADE DO DIA DE VENCIMENTO =====
+function atualizarDiaVencimento() {
+  const formaPagamento = document.getElementById('forma-pagamento').value;
+  const diaVencimentoContainer = document.getElementById('dia-vencimento-container');
+  const diaVencimentoSelect = document.getElementById('dia-vencimento');
+  
+  // Mostrar campo apenas para boleto ou PIX
+  if (formaPagamento === 'boleto' || formaPagamento === 'pix') {
+    diaVencimentoContainer.classList.remove('hidden');
+    diaVencimentoSelect.setAttribute('required', 'required');
+  } else {
+    diaVencimentoContainer.classList.add('hidden');
+    diaVencimentoSelect.removeAttribute('required');
+    diaVencimentoSelect.value = ''; // Limpar seleção quando oculto
+  }
+}
+
 // ===== LÓGICA DE PAGAMENTO =====
 function atualizarFormaPagamento() {
   const planoSelecionado = document.getElementById('plano').value;
@@ -113,6 +130,9 @@ function atualizarFormaPagamento() {
       paymentInfo.classList.remove('hidden');
     }
   }
+  
+  // Atualizar visibilidade do dia de vencimento
+  atualizarDiaVencimento();
 }
 
 function calcularPreco() {
@@ -310,6 +330,18 @@ function validarPrimeiraEtapa() {
   
   if (!validarFonteConhecimento()) {
     valido = false;
+  }
+  
+  // NOVA VALIDAÇÃO: Verificar dia de vencimento quando obrigatório
+  const formaPagamento = document.getElementById('forma-pagamento').value;
+  const diaVencimento = document.getElementById('dia-vencimento').value;
+  const diaVencimentoSelect = document.getElementById('dia-vencimento');
+  
+  if ((formaPagamento === 'boleto' || formaPagamento === 'pix') && !diaVencimento) {
+    diaVencimentoSelect.classList.add('input-error');
+    valido = false;
+  } else {
+    diaVencimentoSelect.classList.remove('input-error');
   }
   
   return valido;
@@ -537,8 +569,12 @@ $(document).ready(function () {
     calcularPreco();
   });
   document.getElementById('desconto').addEventListener('change', calcularPreco);
+  
   // Event listener para forma de pagamento
-  document.getElementById('forma-pagamento').addEventListener('change', calcularPreco);
+  document.getElementById('forma-pagamento').addEventListener('change', function() {
+    atualizarDiaVencimento(); // NOVA LINHA
+    calcularPreco();
+  });
   
   document.getElementById('btn-next-step').addEventListener('click', irParaSegundaTela);
   document.getElementById('btn-back-step').addEventListener('click', voltarParaPrimeiraTela);
