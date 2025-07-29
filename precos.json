@@ -1,19 +1,19 @@
 {
   "planos": {
     "mensal": {
-      "nome": "Plano Mensal",
+      "nome": "Mensal",
       "descricao": "Pagamento mensal",
       "meses": 1,
       "parcelas": 1
     },
     "bimestral": {
-      "nome": "Plano Bimestral (2 meses)",
+      "nome": "Bimestral",
       "descricao": "2 meses com desconto",
       "meses": 2,
       "parcelas": 2
     },
     "quadrimestral": {
-      "nome": "Plano Quadrimestral (4 meses)",
+      "nome": "Quadrimestral",
       "descricao": "4 meses com maior desconto",
       "meses": 4,
       "parcelas": 4
@@ -21,7 +21,7 @@
   },
   "cursos": {
     "desenho_segunda_manha": {
-      "nome": "DESENHO // segunda manhã (9H30 > 11H) // 7 a 10 anos // Educador José",
+      "nome": "DESENHO // seg 9H30-11H // 7-10a // José",
       "categoria": "curso",
       "precos": {
         "mensal": 230,
@@ -30,7 +30,7 @@
       }
     },
     "desenho_quarta_tarde": {
-      "nome": "DESENHO // quarta tarde (16H > 17H30) // 10 a 12 anos // Educador José",
+      "nome": "DESENHO // qua 16H-17H30 // 10-12a // José",
       "categoria": "curso",
       "precos": {
         "mensal": 230,
@@ -39,7 +39,7 @@
       }
     },
     "trabalhos_manuais_manha": {
-      "nome": "TRABALHOS MANUAIS // quinta manhã (9H > 11H30) // 6 a 10 anos // Educador Betina",
+      "nome": "TRABALHOS MANUAIS // qui 9H-11H30 // 6-10a // Betina",
       "categoria": "curso",
       "precos": {
         "mensal": 260,
@@ -48,7 +48,7 @@
       }
     },
     "artes_extendido_segunda_tarde": {
-      "nome": "ARTES extendido // segunda tarde (14H > 17H) // 6 a 11 anos // Educadora Bia",
+      "nome": "ARTES extendido // seg 14H-17H // 6-11a // Bia",
       "categoria": "curso",
       "precos": {
         "mensal": 290,
@@ -57,7 +57,7 @@
       }
     },
     "artes_quarta_tarde": {
-      "nome": "ARTES // quarta tarde (14H > 15H30) // 6 a 11 anos // Educadora Maria Fernanda",
+      "nome": "ARTES // qua 14H-15H30 // 6-11a // Maria Fernanda",
       "categoria": "curso",
       "precos": {
         "mensal": 230,
@@ -66,7 +66,7 @@
       }
     },
     "marcenaria_segunda_manha": {
-      "nome": "MARCENARIA // segunda manhã (9H30 > 11H) // 7 a 11 anos // Educador David",
+      "nome": "MARCENARIA // seg 9H30-11H // 7-11a // David",
       "categoria": "curso",
       "precos": {
         "mensal": 260,
@@ -75,7 +75,7 @@
       }
     },
     "marcenaria_quarta_tarde": {
-      "nome": "MARCENARIA // quarta tarde (14H > 15H30) // 7 a 11 anos // Educador David",
+      "nome": "MARCENARIA // qua 14H-15H30 // 7-11a // David",
       "categoria": "curso",
       "precos": {
         "mensal": 260,
@@ -84,7 +84,7 @@
       }
     },
     "modelagem_sexta_manha": {
-      "nome": "MODELAGEM  // sexta manhã (10H > 11H30) // 6 a 9 anos // Educadora Marta",
+      "nome": "MODELAGEM // sex 10H-11H30 // 6-9a // Marta",
       "categoria": "curso",
       "precos": {
         "mensal": 260,
@@ -93,7 +93,7 @@
       }
     },
     "modelagem_sexta_tarde_14": {
-      "nome": "MODELAGEM  // sexta tarde (14H > 15H30) // 6 a 10 anos // Educadora Marta",
+      "nome": "MODELAGEM // sex 14H-15H30 // 6-10a // Marta",
       "categoria": "curso",
       "precos": {
         "mensal": 260,
@@ -102,7 +102,7 @@
       }
     },
     "modelagem_sexta_tarde_16": {
-      "nome": "MODELAGEM  // sexta tarde (16H > 17H30) // 6 a 10 anos // Educadora Marta",
+      "nome": "MODELAGEM // sex 16H-17H30 // 6-10a // Marta",
       "categoria": "curso",
       "precos": {
         "mensal": 260,
@@ -111,7 +111,7 @@
       }
     },
     "ingles_sexta_tarde_14": {
-      "nome": "INGLÊS // sexta tarde (14H > 15H30) // 6 a 10 anos  // Educador Lucas",
+      "nome": "INGLÊS // sex 14H-15H30 // 6-10a // Lucas",
       "categoria": "curso",
       "precos": {
         "mensal": 260,
@@ -120,7 +120,7 @@
       }
     },
     "ingles_sexta_tarde_16": {
-      "nome": "INGLÊS // sexta tarde (16H > 17H30) // 6 a 10 anos  // Educador Lucas",
+      "nome": "INGLÊS // sex 16H-17H30 // 6-10a // Lucas",
       "categoria": "curso",
       "precos": {
         "mensal": 260,
@@ -131,7 +131,7 @@
   },
   "contraturnos": {
     "contraturno_tarde_1x": {
-      "nome": "CONTRATURNO TARDE 1x por semana",
+      "nome": "CONTRATURNO TARDE 1x/semana",
       "categoria": "contraturno",
       "precos": {
         "mensal": 290,
@@ -140,7 +140,7 @@
       }
     },
     "contraturno_tarde_2x": {
-      "nome": "CONTRATURNO TARDE 2x por semana",
+      "nome": "CONTRATURNO TARDE 2x/semana",
       "categoria": "contraturno",
       "precos": {
         "mensal": 520,
@@ -149,7 +149,7 @@
       }
     },
     "contraturno_manha_1x": {
-      "nome": "CONTRATURNO MANHÃ 1x por semana",
+      "nome": "CONTRATURNO MANHÃ 1x/semana",
       "categoria": "contraturno",
       "precos": {
         "mensal": 250,
@@ -158,7 +158,7 @@
       }
     },
     "contraturno_manha_2x": {
-      "nome": "CONTRATURNO MANHÃ 2x por semana",
+      "nome": "CONTRATURNO MANHÃ 2x/semana",
       "categoria": "contraturno",
       "precos": {
         "mensal": 480,
