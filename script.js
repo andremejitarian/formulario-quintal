@@ -160,7 +160,7 @@ function calcularPreco() {
   let precoFinal = preco;
   let avisoTaxa = '';
   
-  if (isPlanoMensal && isCartaoCredito) {
+  if (isCartaoCredito) {
     precoFinal = calcularPrecoComTaxa(preco);
     avisoTaxa = `
       <div id="aviso-taxa-cartao" style="
