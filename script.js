@@ -94,8 +94,8 @@ function atualizarDiaVencimento() {
   const diaVencimentoContainer = document.getElementById('dia-vencimento-container');
   const diaVencimentoSelect = document.getElementById('dia-vencimento');
   
-  // Mostrar campo apenas para boleto ou PIX
-  if (formaPagamento === 'boleto' || formaPagamento === 'pix') {
+  // Mostrar campo apenas para boleto ou PIX ou CARTAO
+  if (formaPagamento === 'cartao-credito' || formaPagamento === 'boleto' || formaPagamento === 'pix') {
     diaVencimentoContainer.classList.remove('hidden');
     diaVencimentoSelect.setAttribute('required', 'required');
   } else {
