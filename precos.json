@@ -74,8 +74,8 @@
         "quadrimestral": 215
       }
     },
-    "marcenaria": {
-      "nome": "MARCENARIA",
+    "marcenaria_segunda_manha": {
+      "nome": "MARCENARIA // segunda manhã (9H30 > 11H) // 7 a 11 anos // Educador David",
       "categoria": "curso",
       "precos": {
         "mensal": 260,
@@ -83,8 +83,17 @@
         "quadrimestral": 245
       }
     },
-    "modelagem": {
-      "nome": "MODELAGEM",
+    "marcenaria_quarta_tarde": {
+      "nome": "MARCENARIA // quarta tarde (14H > 15H30) // 7 a 11 anos // Educador David",
+      "categoria": "curso",
+      "precos": {
+        "mensal": 260,
+        "bimestral": 250,
+        "quadrimestral": 245
+      }
+    },
+    "modelagem_sexta_manha": {
+      "nome": "MODELAGEM  // sexta manhã (10H > 11H30) // 6 a 9 anos // Educadora Marta",
       "categoria": "curso",
       "precos": {
         "mensal": 260,
@@ -92,8 +101,35 @@
         "quadrimestral": 250
       }
     },
-    "ingles": {
-      "nome": "INGLÊS",
+    "modelagem_sexta_tarde_14": {
+      "nome": "MODELAGEM  // sexta tarde (14H > 15H30) // 6 a 10 anos // Educadora Marta",
+      "categoria": "curso",
+      "precos": {
+        "mensal": 260,
+        "bimestral": 255,
+        "quadrimestral": 250
+      }
+    },
+    "modelagem_sexta_tarde_16": {
+      "nome": "MODELAGEM  // sexta tarde (16H > 17H30) // 6 a 10 anos // Educadora Marta",
+      "categoria": "curso",
+      "precos": {
+        "mensal": 260,
+        "bimestral": 255,
+        "quadrimestral": 250
+      }
+    },
+    "ingles_sexta_tarde_14": {
+      "nome": "INGLÊS // sexta tarde (14H > 15H30) // 6 a 10 anos  // Educador Lucas",
+      "categoria": "curso",
+      "precos": {
+        "mensal": 260,
+        "bimestral": 255,
+        "quadrimestral": 250
+      }
+    },
+    "ingles_sexta_tarde_16": {
+      "nome": "INGLÊS // sexta tarde (16H > 17H30) // 6 a 10 anos  // Educador Lucas",
       "categoria": "curso",
       "precos": {
         "mensal": 260,
