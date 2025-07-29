@@ -172,7 +172,7 @@ function calcularPreco() {
         font-size: 0.9rem; 
         color: #856404;
       ">
-        ⚠️ <strong>Atenção:</strong> Para planos mensais pagos no cartão de crédito, há um acréscimo de taxa de processamento de 3,99% + R\$ 0,49.
+        ⚠️ <strong>Atenção:</strong> Para planos pagos no cartão de crédito, há um acréscimo de taxa de processamento de 3,99% + R\$ 0,49.
         <br>
         <small>Valor original: R\$ ${preco.toFixed(2).replace('.', ',')} | Valor com taxa: R\$ ${precoFinal.toFixed(2).replace('.', ',')}</small>
       </div>
