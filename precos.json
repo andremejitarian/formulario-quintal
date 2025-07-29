@@ -20,8 +20,18 @@
     }
   },
   "cursos": {
-    "desenho": {
-      "nome": "DESENHO",
+    "desenho_segunda_manha": {
+      "nome": "DESENHO // segunda manhã (9H30 > 11H) // 7 a 10 anos // Educador José",
+      "categoria": "curso",
+      "precos": {
+        "mensal": 230,
+        "bimestral": 220,
+        "quadrimestral": 215
+      }
+    },
+  "cursos": {
+    "desenho_quarta_tarde": {
+      "nome": "DESENHO // quarta tarde (16H > 17H30) // 10 a 12 anos // Educador José",
       "categoria": "curso",
       "precos": {
         "mensal": 230,
@@ -38,8 +48,17 @@
         "quadrimestral": 245
       }
     },
-    "artes_extendido": {
-      "nome": "ARTES extendido (3 horas)",
+    "artes_extendido_segunda_tarde": {
+      "nome": "ARTES extendido // segunda tarde (14H > 17H) // 6 a 11 anos // Educadora Bia",
+      "categoria": "curso",
+      "precos": {
+        "mensal": 290,
+        "bimestral": 280,
+        "quadrimestral": 275
+      }
+    },
+    "artes_quarta_tarde": {
+      "nome": "ARTES // quarta tarde (14H > 15H30) // 6 a 11 anos // Educadora Maria Fernanda",
       "categoria": "curso",
       "precos": {
         "mensal": 290,
