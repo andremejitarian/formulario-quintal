@@ -180,6 +180,12 @@
       "percentual": 10,
       "observacao": "Não cumulativo com outros descontos"
     },
+    "bolsistas": {
+      "nome": "Bolsistas",
+      "descricao": "Desconto para bolsistas",
+      "percentual": 10,
+      "observacao": "Não cumulativo com outros descontos"
+    },
     "multiplos_cursos": {
       "nome": "Múltiplos cursos",
       "descricao": "Desconto no curso de menor valor ao fazer mais de um curso",
