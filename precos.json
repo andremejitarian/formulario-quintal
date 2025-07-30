@@ -131,7 +131,7 @@
   },
   "contraturnos": {
     "contraturno_tarde_1x": {
-      "nome": "CONTRATURNO TARDE 1x/semana",
+      "nome": "CONTRATURNO TARDE (ter e/ou qui) 1x/semana 13H-17h30",
       "categoria": "contraturno",
       "precos": {
         "mensal": 290,
@@ -140,7 +140,7 @@
       }
     },
     "contraturno_tarde_2x": {
-      "nome": "CONTRATURNO TARDE 2x/semana",
+      "nome": "CONTRATURNO TARDE (ter e/ou qui) 2x/semana 13H-17h30",
       "categoria": "contraturno",
       "precos": {
         "mensal": 520,
@@ -149,7 +149,7 @@
       }
     },
     "contraturno_manha_1x": {
-      "nome": "CONTRATURNO MANHÃ 1x/semana",
+      "nome": "CONTRATURNO MANHÃ (qua e/ou sex) 1x/semana 8h30-11h30",
       "categoria": "contraturno",
       "precos": {
         "mensal": 250,
@@ -158,7 +158,7 @@
       }
     },
     "contraturno_manha_2x": {
-      "nome": "CONTRATURNO MANHÃ 2x/semana",
+      "nome": "CONTRATURNO MANHÃ (qua e/ou sex) 2x/semana 8h30-11h30",
       "categoria": "contraturno",
       "precos": {
         "mensal": 480,
