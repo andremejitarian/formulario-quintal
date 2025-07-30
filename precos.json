@@ -39,7 +39,7 @@
       }
     },
     "trabalhos_manuais_manha": {
-      "nome": "TRABALHOS MANUAIS // qui 9H-11H30 // 6-10a // Betina",
+      "nome": "TRABALHOS MANUAIS // qui 9H-11H30 // 6-12a // Betina",
       "categoria": "curso",
       "precos": {
         "mensal": 260,
@@ -48,7 +48,7 @@
       }
     },
     "artes_extendido_segunda_tarde": {
-      "nome": "ARTES extendido // seg 14H-17H // 6-11a // Bia",
+      "nome": "ARTES extendido // seg 14H-17H // 7-10a // Bia",
       "categoria": "curso",
       "precos": {
         "mensal": 290,
