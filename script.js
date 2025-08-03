@@ -1,589 +1,354 @@
-let dadosPrecos = {};
-let checkoutUrl = '';
-
-// ===== FUNÇÃO PARA CALCULAR PREÇO COM TAXA DO CARTÃO =====
-function calcularPrecoComTaxa(valorLiquido) {
-  const taxaPercentual = 0.0399; // 3,99%
-  const taxaFixa = 0.49;         // R\$ 0,49 fixo
-
-  const preco = (valorLiquido + taxaFixa) / (1 - taxaPercentual);
-  return parseFloat(preco.toFixed(2)); // retorna como número com 2 casas decimais
-}
-
-// ===== FUNÇÃO CORRIGIDA PARA CALCULAR QUANTIDADE DE PARCELAS =====
-function calcularQuantidadeParcelas(plano) {
-  // Ler do arquivo precos.json carregado
-  if (dadosPrecos.planos && dadosPrecos.planos[plano] && dadosPrecos.planos[plano].parcelas) {
-    return dadosPrecos.planos[plano].parcelas;
-  }
-  
-  // Fallback caso não encontre no JSON
-  console.warn(`Parcelas não encontradas para o plano: ${plano}. Usando valor padrão: 1`);
-  return 1;
-}
-
-// ===== CARREGAMENTO DE DADOS =====
-async function carregarPrecos() {
-  try {
-    const response = await fetch('./precos.json');
-    dadosPrecos = await response.json();
-    console.log('Dados carregados:', dadosPrecos);
-    preencherCursos();
-    preencherPlanos();
-    preencherDescontos();
-  } catch (error) {
-    console.error('Erro ao carregar preços:', error);
-    alert('Erro ao carregar dados de preços. Tente novamente.');
-  }
-}
-
-function preencherCursos() {
-  const cursoSelect = document.getElementById('curso');
-  cursoSelect.innerHTML = '<option value="">Selecione um curso</option>';
-  
-  if (dadosPrecos.cursos) {
-    Object.entries(dadosPrecos.cursos).forEach(([key, curso]) => {
-      const option = document.createElement('option');
-      option.value = key;
-      option.textContent = curso.nome;
-      cursoSelect.appendChild(option);
-    });
-  }
-  
-  if (dadosPrecos.contraturnos) {
-    Object.entries(dadosPrecos.contraturnos).forEach(([key, contraturno]) => {
-      const option = document.createElement('option');
-      option.value = key;
-      option.textContent = contraturno.nome;
-      cursoSelect.appendChild(option);
-    });
-  }
-}
-
-function preencherPlanos() {
-  const planoSelect = document.getElementById('plano');
-  planoSelect.innerHTML = '<option value="">Selecione um plano</option>';
-  
-  if (dadosPrecos.planos) {
-    Object.entries(dadosPrecos.planos).forEach(([key, plano]) => {
-      const option = document.createElement('option');
-      option.value = key;
-      option.textContent = plano.nome;
-      planoSelect.appendChild(option);
-    });
-  }
-}
-
-function preencherDescontos() {
-  const descontoSelect = document.getElementById('desconto');
-  descontoSelect.innerHTML = '<option value="">Nenhum desconto</option>';
-  
-  if (dadosPrecos.descontos) {
-    Object.entries(dadosPrecos.descontos).forEach(([key, desconto]) => {
-      const option = document.createElement('option');
-      option.value = key;
-      option.textContent = `${desconto.nome} (${desconto.percentual}% desconto)`;
-      descontoSelect.appendChild(option);
-    });
-  }
-}
-
-// ===== NOVA FUNÇÃO PARA CONTROLAR VISIBILIDADE DO DIA DE VENCIMENTO =====
-function atualizarDiaVencimento() {
-  const formaPagamento = document.getElementById('forma-pagamento').value;
-  const diaVencimentoContainer = document.getElementById('dia-vencimento-container');
-  const diaVencimentoSelect = document.getElementById('dia-vencimento');
-  
-  // Mostrar campo apenas para boleto ou PIX
-  if (formaPagamento === 'boleto' || formaPagamento === 'pix') {
-    diaVencimentoContainer.classList.remove('hidden');
-    diaVencimentoSelect.setAttribute('required', 'required');
-  } else {
-    diaVencimentoContainer.classList.add('hidden');
-    diaVencimentoSelect.removeAttribute('required');
-    diaVencimentoSelect.value = ''; // Limpar seleção quando oculto
-  }
-}
-
-// ===== LÓGICA DE PAGAMENTO =====
-function atualizarFormaPagamento() {
-  const planoSelecionado = document.getElementById('plano').value;
-  const formaPagamentoSelect = document.getElementById('forma-pagamento');
-  const paymentInfo = document.getElementById('payment-info');
-  const cartaoOption = formaPagamentoSelect.querySelector('option[value="cartao-credito"]');
-  
-  const permiteCartao = planoSelecionado === 'mensal' || planoSelecionado === 'bimestral' || planoSelecionado === 'quadrimestral';
-  
-  if (permiteCartao) {
-    cartaoOption.disabled = false;
-    cartaoOption.textContent = '💳 Cartão de Crédito';
-    paymentInfo.classList.add('hidden');
-  } else {
-    cartaoOption.disabled = true;
-    cartaoOption.textContent = '💳 Cartão de Crédito (disponível apenas para planos bimestral e quadrimestral)';
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('estadiaForm');
     
-    if (formaPagamentoSelect.value === 'cartao-credito') {
-      formaPagamentoSelect.value = '';
+    // URLs das webhooks
+    const WEBHOOK_URL = 'https://criadordigital-n8n-editor.kttqgl.easypanel.host/webhook-test/91479e0c-d686-42dd-a381-c3e44d50df7e';
+    const CPF_VALIDATION_URL = 'https://criadordigital-n8n-webhook.kttqgl.easypanel.host/webhook/c4d1f0e8-90d5-4092-9f6c-ef116fe81e8a';
+
+    // Função para mostrar a tela do formulário
+    window.showFormScreen = function() {
+        document.getElementById('welcomeScreen').classList.remove('active');
+        document.getElementById('formScreen').classList.add('active');
     }
+
+    // Função para mostrar a tela de boas-vindas
+    window.showWelcomeScreen = function() {
+        document.getElementById('formScreen').classList.remove('active');
+        document.getElementById('welcomeScreen').classList.add('active');
+    }
+
+    // ===== MÁSCARAS DE FORMATAÇÃO =====
     
-    if (planoSelecionado) {
-      paymentInfo.classList.remove('hidden');
-    }
-  }
-  
-  // Atualizar visibilidade do dia de vencimento
-  atualizarDiaVencimento();
-}
-
-function calcularPreco() {
-  const planoSelecionado = document.getElementById('plano').value;
-  const cursoSelecionado = document.getElementById('curso').value;
-  const descontoSelecionado = document.getElementById('desconto').value;
-  const formaPagamento = document.getElementById('forma-pagamento').value;
-  
-  if (!planoSelecionado || !cursoSelecionado) {
-    document.getElementById('preco-container').classList.add('hidden');
-    // Limpar aviso de taxa se existir
-    const avisoTaxa = document.getElementById('aviso-taxa-cartao');
-    if (avisoTaxa) {
-      avisoTaxa.remove();
-    }
-    // Limpar campo de parcelas quando não há seleção
-    const campoQuantidadeParcelas = document.getElementById('quantidade_parcelas');
-    if (campoQuantidadeParcelas) {
-      campoQuantidadeParcelas.value = '';
-    }
-    return;
-  }
-  
-  let curso = dadosPrecos.cursos[cursoSelecionado] || dadosPrecos.contraturnos[cursoSelecionado];
-  if (!curso) {
-    console.error('Curso não encontrado:', cursoSelecionado);
-    return;
-  }
-  
-  let preco = curso.precos[planoSelecionado];
-  if (!preco) {
-    console.error('Preço não encontrado para plano:', planoSelecionado);
-    return;
-  }
-  
-  // Aplicar desconto se selecionado
-  if (descontoSelecionado && dadosPrecos.descontos[descontoSelecionado]) {
-    const desconto = dadosPrecos.descontos[descontoSelecionado];
-    preco = preco * (1 - desconto.percentual / 100);
-  }
-  
-  // Verificar se é plano mensal e forma de pagamento é cartão
-  const isPlanoMensal = planoSelecionado === 'mensal';
-  const isCartaoCredito = formaPagamento === 'cartao-credito';
-  let precoFinal = preco;
-  let avisoTaxa = '';
-  
-  if (isCartaoCredito) {
-    precoFinal = calcularPrecoComTaxa(preco);
-    avisoTaxa = `
-      <div id="aviso-taxa-cartao" style="
-        background-color: #fff3cd; 
-        border: 1px solid #ffeaa7; 
-        border-radius: 5px; 
-        padding: 10px; 
-        margin-top: 10px; 
-        font-size: 0.9rem; 
-        color: #856404;
-      ">
-        ⚠️ <strong>Atenção:</strong> Para planos pagos no cartão de crédito, há um acréscimo de taxa de processamento de 3,99% + R\$ 0,49.
-        <br>
-        <small>Valor original: R\$ ${preco.toFixed(2).replace('.', ',')} | Valor com taxa: R\$ ${precoFinal.toFixed(2).replace('.', ',')}</small>
-      </div>
-    `;
-  }
-
-  // Atualizar o campo oculto com o valor final
-  document.getElementById('valor_calculado').value = precoFinal.toFixed(2);
-  
-  // ===== ATUALIZAR CAMPO OCULTO COM QUANTIDADE DE PARCELAS =====
-  const quantidadeParcelas = calcularQuantidadeParcelas(planoSelecionado);
-  const campoQuantidadeParcelas = document.getElementById('quantidade_parcelas');
-  if (campoQuantidadeParcelas) {
-    campoQuantidadeParcelas.value = quantidadeParcelas;
-    console.log(`Quantidade de parcelas definida: ${quantidadeParcelas} para o plano: ${planoSelecionado}`); // Debug
-  } else {
-    console.error('Campo quantidade_parcelas não encontrado no HTML!');
-  }
-
-  const precoDisplay = document.getElementById('preco-display');
-  const planoInfo = dadosPrecos.planos[planoSelecionado];
-  
-  precoDisplay.innerHTML = `
-    <div><strong>${curso.nome}</strong></div>
-    <div>${planoInfo.nome}</div>
-    <div style="font-size: 1.4rem; color: #FAC622;">R\$ ${precoFinal.toFixed(2).replace('.', ',')}/mês</div>
-    ${descontoSelecionado ? `<div style="font-size: 0.9rem; color: #27ae60;">✓ ${dadosPrecos.descontos[descontoSelecionado].nome} aplicado</div>` : ''}
-    ${avisoTaxa}
-  `;
-  
-  document.getElementById('preco-container').classList.remove('hidden');
-}
-
-// ===== FUNÇÃO PARA OBTER CURSO + PLANO COMBINADOS =====
-function getCursoPlanoCompleto() {
-  const cursoSelecionado = document.getElementById('curso').value;
-  const planoSelecionado = document.getElementById('plano').value;
-  
-  if (!cursoSelecionado || !planoSelecionado) {
-    return '';
-  }
-  
-  // Buscar o nome do curso
-  let nomeCurso = '';
-  if (dadosPrecos.cursos && dadosPrecos.cursos[cursoSelecionado]) {
-    nomeCurso = dadosPrecos.cursos[cursoSelecionado].nome;
-  } else if (dadosPrecos.contraturnos && dadosPrecos.contraturnos[cursoSelecionado]) {
-    nomeCurso = dadosPrecos.contraturnos[cursoSelecionado].nome;
-  }
-  
-  // Buscar o nome do plano
-  let nomePlano = '';
-  if (dadosPrecos.planos && dadosPrecos.planos[planoSelecionado]) {
-    nomePlano = dadosPrecos.planos[planoSelecionado].nome;
-  }
-  
-  // Retornar combinação
-  if (nomeCurso && nomePlano) {
-    return `${nomeCurso} - ${nomePlano}`;
-  }
-  
-  return '';
-}
-
-// ===== VALIDAÇÃO DE CPF CORRIGIDA =====
-async function validarCPF(cpf) {
-  const cpfLimpo = cpf.replace(/\D/g, '');
-
-  if (cpfLimpo.length !== 11) {
-    return { valido: false, erro: 'CPF deve ter 11 dígitos' };
-  }
-
-  try {
-    const validationWebhookUrl = 'https://criadordigital-n8n-webhook.kttqgl.easypanel.host/webhook/8d12535f-d756-4fd5-b57f-040b3a620409';
-
-    const response = await fetch(validationWebhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cpf: cpfLimpo })
+    // Máscara para CPF
+    document.getElementById('cpf').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 11) {
+            value = value.slice(0, 11);
+        }
+        value = value.replace(/(\d{3})(\d)/, '$1.$2');
+        value = value.replace(/(\d{3})(\d)/, '$1.$2');
+        value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+        e.target.value = value;
     });
 
-    if (!response.ok) {
-      return { valido: false, erro: 'Erro na validação do CPF. Tente novamente.' };
-    }
-
-    const responseData = await response.json();
-    console.log('Resposta do webhook CPF:', responseData); // Debug
-
-    // Suporte para array ou objeto simples
-    const data = Array.isArray(responseData) ? responseData[0] : responseData;
-
-    if (data && typeof data.valido === 'boolean') {
-      return {
-        valido: data.valido === true,
-        erro: data.valido === true ? null : 'CPF inválido. Por favor, verifique e tente novamente.'
-      };
-    } else {
-      console.error('Formato de resposta inesperado:', responseData);
-      return { valido: false, erro: 'Erro na validação do CPF. Tente novamente.' };
-    }
-
-  } catch (error) {
-    console.error('Erro na validação do CPF:', error);
-    return { valido: false, erro: 'Erro de conexão. Tente novamente.' };
-  }
-}
-
-// ===== VALIDAÇÕES =====
-function validarFonteConhecimento() {
-  const checkboxes = document.querySelectorAll('input[name="fonte-conhecimento"]:checked');
-  const erro = document.getElementById('fonte-error');
-  
-  if (checkboxes.length === 0) {
-    erro.classList.remove('hidden');
-    return false;
-  } else {
-    erro.classList.add('hidden');
-    return true;
-  }
-}
-
-function validarPrimeiraEtapa() {
-  const form = document.getElementById('step-1-form');
-  const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
-  let valido = true;
-  
-  inputs.forEach(input => {
-    if (!input.value.trim()) {
-      input.classList.add('input-error');
-      valido = false;
-    } else {
-      input.classList.remove('input-error');
-    }
-  });
-  
-  if (!validarFonteConhecimento()) {
-    valido = false;
-  }
-  
-  // NOVA VALIDAÇÃO: Verificar dia de vencimento quando obrigatório
-  const formaPagamento = document.getElementById('forma-pagamento').value;
-  const diaVencimento = document.getElementById('dia-vencimento').value;
-  const diaVencimentoSelect = document.getElementById('dia-vencimento');
-  
-  if ((formaPagamento === 'boleto' || formaPagamento === 'pix') && !diaVencimento) {
-    diaVencimentoSelect.classList.add('input-error');
-    valido = false;
-  } else {
-    diaVencimentoSelect.classList.remove('input-error');
-  }
-  
-  return valido;
-}
-
-function validarSegundaEtapa() {
-  let valido = true;
-  
-  const aceitoTermos = document.getElementById('aceito-termos');
-  const termosError = document.getElementById('termos-error');
-  
-  if (!aceitoTermos.checked) {
-    termosError.classList.remove('hidden');
-    valido = false;
-  } else {
-    termosError.classList.add('hidden');
-  }
-  
-  const autorizacaoImagem = document.querySelector('input[name="autorizacao-imagem"]:checked');
-  const autorizacaoError = document.getElementById('autorizacao-error');
-  
-  if (!autorizacaoImagem) {
-    autorizacaoError.classList.remove('hidden');
-    valido = false;
-  } else {
-    autorizacaoError.classList.add('hidden');
-  }
-  
-  return valido;
-}
-
-// ===== NAVEGAÇÃO ATUALIZADA =====
-async function irParaSegundaTela() {
-  // Primeiro valida os campos obrigatórios
-  if (!validarPrimeiraEtapa()) {
-    alert('Por favor, preencha todos os campos obrigatórios antes de continuar.');
-    return;
-  }
-
-  const btnContinuar = document.getElementById('btn-next-step');
-  const cpfInput = document.getElementById('cpf-responsavel');
-  const cpfError = document.getElementById('cpf-error');
-  
-  // Desabilita o botão e mostra loading
-  btnContinuar.disabled = true;
-  btnContinuar.textContent = 'Validando CPF...';
-  
-  // Limpa erros anteriores
-  cpfError.classList.add('hidden');
-  cpfInput.classList.remove('input-error');
-  
-  // Valida o CPF
-  const resultadoValidacao = await validarCPF(cpfInput.value);
-  
-  if (resultadoValidacao.valido) {
-    // CPF válido - avança para próxima tela
-    document.getElementById('form-step-1').classList.add('hidden');
-    document.getElementById('form-step-2').classList.remove('hidden');
-    window.scrollTo(0, 0);
-  } else {
-    // CPF inválido - mostra erro
-    cpfError.textContent = resultadoValidacao.erro;
-    cpfError.classList.remove('hidden');
-    cpfInput.classList.add('input-error');
-    cpfInput.focus();
-  }
-  
-  // Restaura o botão
-  btnContinuar.disabled = false;
-  btnContinuar.textContent = 'Continuar para Termos e Condições';
-}
-
-function voltarParaPrimeiraTela() {
-  document.getElementById('form-step-2').classList.add('hidden');
-  document.getElementById('form-step-1').classList.remove('hidden');
-  window.scrollTo(0, 0);
-}
-
-// ===== UTILITÁRIOS =====
-function getUrlParameter(name) {
-  const urlParams = new URLSearchParams(window.location.search);
-  let value = urlParams.get(name);
-  
-  if (value && (value.startsWith('"') && value.endsWith('"'))) {
-    value = value.slice(1, -1);
-  }
-  
-  return value;
-}
-
-function preencherCampos() {
-  const emailParam = getUrlParameter('email');
-  if (emailParam) {
-    document.getElementById('email').value = emailParam;
-  }
-  
-  const nomeParam = getUrlParameter('nome');
-  if (nomeParam) {
-    document.getElementById('nome').value = nomeParam;
-  }
-  
-  const telefoneParam = getUrlParameter('telefone');
-  if (telefoneParam) {
-    document.getElementById('telefone').value = telefoneParam;
-  }
-  
-  const formaPagamentoParam = getUrlParameter('forma_pagamento');
-  if (formaPagamentoParam) {
-    document.getElementById('forma-pagamento').value = formaPagamentoParam;
-  }
-}
-
-// ===== ENVIO DO FORMULÁRIO MODIFICADO =====
-async function enviarFormulario(event) {
-  event.preventDefault();
-
-  if (!validarSegundaEtapa()) {
-    return;
-  }
-
-  const submitBtn = document.getElementById('submit-btn');
-  const step2Container = document.getElementById('form-step-2');
-  const successMessage = document.getElementById('success-message');
-
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Enviando...';
-
-  try {
-    const submissionWebhookUrl = 'https://criadordigital-n8n-webhook.kttqgl.easypanel.host/webhook/c51bd45c-c232-44db-8490-f52f22ae34ce';
-    
-    const step1Form = document.getElementById('step-1-form');
-    const step2Form = document.getElementById('step-2-form');
-    
-    // ===== ADICIONAR CAMPO COMBINADO ANTES DO ENVIO =====
-    const cursoPlanoCompleto = getCursoPlanoCompleto();
-    if (cursoPlanoCompleto) {
-      // Verificar se já existe um campo com esse nome (evitar duplicatas)
-      const campoExistente = step1Form.querySelector('input[name="curso-plano-completo"]');
-      if (campoExistente) {
-        campoExistente.remove();
-      }
-      
-      // Criar e adicionar o campo hidden
-      const campoHidden = document.createElement('input');
-      campoHidden.type = 'hidden';
-      campoHidden.name = 'curso-plano-completo';
-      campoHidden.value = cursoPlanoCompleto;
-      
-      step1Form.appendChild(campoHidden);
-      
-      console.log('Campo combinado adicionado:', cursoPlanoCompleto); // Para debug
-    }
-    
-    const formData1 = new FormData(step1Form);
-    const formData2 = new FormData(step2Form);
-    const payload = {};
-    
-    // Processar dados da primeira etapa
-    for (let [key, value] of formData1.entries()) {
-      if (key !== 'fonte-conhecimento') {
-        payload[key] = value;
-      }
-    }
-    
-    // Processar dados da segunda etapa
-    for (let [key, value] of formData2.entries()) {
-      payload[key] = value;
-    }
-    
-    // Processar checkboxes de fonte de conhecimento
-    const fontesConhecimento = [];
-    document.querySelectorAll('input[name="fonte-conhecimento"]:checked').forEach(checkbox => {
-      fontesConhecimento.push(checkbox.value);
-    });
-    payload['fonte-conhecimento'] = fontesConhecimento.join(', ');
-
-    // ===== DEBUG PARA VERIFICAR SE O CAMPO PARCELAS ESTÁ SENDO ENVIADO =====
-    console.log('Payload final completo:', payload);
-    console.log('Campo quantidade_parcelas no payload:', payload['quantidade_parcelas']);
-
-    const submissionResp = await fetch(submissionWebhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+    // Máscara para Celular
+    document.getElementById('celular').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 11) {
+            value = value.slice(0, 11);
+        }
+        if (value.length <= 10) {
+            value = value.replace(/(\d{2})(\d)/, '($1) $2');
+            value = value.replace(/(\d{4})(\d)/, '$1-$2');
+        } else {
+            value = value.replace(/(\d{2})(\d)/, '($1) $2');
+            value = value.replace(/(\d{5})(\d)/, '$1-$2');
+        }
+        e.target.value = value;
     });
 
-    const submissionData = await submissionResp.json();
-    if (!submissionData.link) throw new Error('Link de pagamento não encontrado.');
+    // Máscara para Valor (Moeda)
+    document.getElementById('valor').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (!value) {
+            e.target.value = '';
+            return;
+        }
+        value = (parseInt(value) / 100).toFixed(2);
+        value = value.replace('.', ',');
+        value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        e.target.value = 'R\$ ' + value;
+    });
 
-    checkoutUrl = submissionData.link;
-    step2Container.classList.add('hidden');
-    successMessage.classList.remove('hidden');
-    window.scrollTo(0, 0);
-  } catch (error) {
-    console.error('Erro:', error.message);
-    alert('Erro ao enviar. Tente novamente.');
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Enviar Cadastro';
-  }
-}
+    document.getElementById('valor').addEventListener('blur', function(e) {
+        let value = e.target.value;
+        if (value && !value.startsWith('R\$ ')) {
+            let numericValue = value.replace(/\D/g, '');
+            if (numericValue) {
+                numericValue = (parseInt(numericValue) / 100).toFixed(2);
+                numericValue = numericValue.replace('.', ',');
+                numericValue = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                e.target.value = 'R\$ ' + numericValue;
+            }
+        }
+    });
 
-function irParaPagamento() {
-  if (checkoutUrl) {
-    window.open(checkoutUrl, '_blank');
-  } else {
-    alert('Link de pagamento não disponível.');
-  }
-}
+    // ===== VALIDAÇÕES =====
 
-// ===== INICIALIZAÇÃO =====
-$(document).ready(function () {
-  console.log('jQuery carregado, aplicando máscaras...');
-  
-  // Máscaras
-  $('#telefone').mask('(00) 00000-0000');
-  $('#telefone-segundo').mask('(00) 00000-0000');
-  $('#cpf-responsavel').mask('000.000.000-00', { reverse: true });
-  
-  console.log('Máscaras aplicadas, carregando preços...');
-  
-  // Event listeners
-  document.getElementById('curso').addEventListener('change', calcularPreco);
-  document.getElementById('plano').addEventListener('change', function() {
-    atualizarFormaPagamento();
-    calcularPreco();
-  });
-  document.getElementById('desconto').addEventListener('change', calcularPreco);
-  
-  // Event listener para forma de pagamento
-  document.getElementById('forma-pagamento').addEventListener('change', function() {
-    atualizarDiaVencimento(); // NOVA LINHA
-    calcularPreco();
-  });
-  
-  document.getElementById('btn-next-step').addEventListener('click', irParaSegundaTela);
-  document.getElementById('btn-back-step').addEventListener('click', voltarParaPrimeiraTela);
-  document.getElementById('step-2-form').addEventListener('submit', enviarFormulario);
-  document.getElementById('btn-ir-pagamento').addEventListener('click', irParaPagamento);
-  
-  // Carregar dados
-  carregarPrecos().then(() => {
-    console.log('Preços carregados, preenchendo campos...');
-    preencherCampos();
-  });
+    // Validação de CPF local (matemática)
+    function validarCPFLocal(cpf) {
+        cpf = cpf.replace(/[^\d]+/g, '');
+        if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
+            return false;
+        }
+        let soma = 0;
+        for (let i = 0; i < 9; i++) {
+            soma += parseInt(cpf.charAt(i)) * (10 - i);
+        }
+        let resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf.charAt(9))) return false;
+        
+        soma = 0;
+        for (let i = 0; i < 10; i++) {
+            soma += parseInt(cpf.charAt(i)) * (11 - i);
+        }
+        resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf.charAt(10))) return false;
+        
+        return true;
+    }
+
+    // Validação de CPF via webhook (baseada no seu código funcional)
+    async function validarCPF(cpf) {
+        try {
+            const cpfLimpo = cpf.replace(/[^\d]/g, '');
+            console.log('🔍 Validando CPF via webhook:', cpfLimpo);
+            
+            const response = await fetch(CPF_VALIDATION_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    cpf: cpfLimpo
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+            }
+
+            const responseData = await response.json();
+            console.log('📋 Resposta completa da validação CPF:', responseData);
+
+            // Trata a resposta: [{"cpf": "37253211839", "valido": "true"}]
+            if (Array.isArray(responseData) && responseData.length > 0) {
+                const resultado = responseData[0];
+                const valido = resultado.valido === "true" || resultado.valido === true;
+                
+                console.log(`✅ CPF ${resultado.cpf} - Válido: ${valido}`);
+                
+                return {
+                    valido: valido,
+                    erro: valido ? null : 'CPF inválido ou não encontrado'
+                };
+            }
+
+            return {
+                valido: false,
+                erro: 'Erro na validação do CPF'
+            };
+
+        } catch (error) {
+            console.error('❌ Erro na validação do CPF via webhook:', error);
+            console.log('🔄 Usando validação local como fallback');
+            
+            const cpfValidoLocal = validarCPFLocal(cpf);
+            return {
+                valido: cpfValidoLocal,
+                erro: cpfValidoLocal ? null : 'CPF inválido (validação local)'
+            };
+        }
+    }
+
+    // ===== FUNÇÕES AUXILIARES =====
+
+    function converterValorParaNumero(valorFormatado) {
+        if (!valorFormatado) return 0;
+        let valor = valorFormatado.replace(/R\$\s?/g, '').replace(/\./g, '');
+        valor = valor.replace(',', '.');
+        return parseFloat(valor) || 0;
+    }
+
+    function mostrarMensagem(texto, tipo = 'sucesso') {
+        const mensagemExistente = document.querySelector('.mensagem-feedback');
+        if (mensagemExistente) {
+            mensagemExistente.remove();
+        }
+
+        const mensagem = document.createElement('div');
+        mensagem.className = `mensagem-feedback ${tipo}`;
+        mensagem.innerHTML = `
+            <div class="mensagem-conteudo">
+                <span class="mensagem-icone">${tipo === 'sucesso' ? '✅' : '❌'}</span>
+                <span class="mensagem-texto">${texto}</span>
+            </div>
+        `;
+
+        document.body.appendChild(mensagem);
+
+        setTimeout(() => {
+            if (mensagem.parentNode) {
+                mensagem.style.opacity = '0';
+                setTimeout(() => mensagem.remove(), 300);
+            }
+        }, 5000);
+    }
+
+    async function enviarParaN8N(dadosFormulario) {
+        try {
+            const response = await fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    ...dadosFormulario,
+                    metadata: {
+                        timestamp: new Date().toISOString(),
+                        source: 'formulario-check-in-fazenda',
+                        userAgent: navigator.userAgent,
+                        url: window.location.href
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+            }
+
+            let responseData;
+            try {
+                responseData = await response.json();
+            } catch (e) {
+                responseData = await response.text();
+            }
+
+            console.log('✅ Sucesso - Resposta do n8n:', responseData);
+            return { success: true, data: responseData };
+
+        } catch (error) {
+            console.error('❌ Erro ao enviar para n8n:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // ===== MANIPULADOR DO FORMULÁRIO =====
+    
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const submitButton = document.querySelector('.submit-button');
+        const textoOriginal = submitButton.innerHTML;
+        
+        // Ativa o loading
+        submitButton.innerHTML = '<span class="loading-spinner"></span> Validando CPF...';
+        submitButton.disabled = true;
+        submitButton.style.opacity = '0.7';
+
+        // Coleta os dados do formulário
+        const formData = {
+            nomeCompleto: document.getElementById('nomeCompleto').value.trim(),
+            cpf: document.getElementById('cpf').value,
+            cpfLimpo: document.getElementById('cpf').value.replace(/[^\d]/g, ''),
+            email: document.getElementById('email').value.trim().toLowerCase(),
+            celular: document.getElementById('celular').value,
+            celularLimpo: document.getElementById('celular').value.replace(/[^\d]/g, ''),
+            nomeEvento: document.getElementById('nomeEvento').value.trim(),
+            valor: document.getElementById('valor').value,
+            valorNumerico: converterValorParaNumero(document.getElementById('valor').value),
+            dataChegada: document.getElementById('dataChegada').value,
+            dataSaida: document.getElementById('dataSaida').value,
+            aceitoRegulamento: document.getElementById('aceitoRegulamento').checked,
+            comunicacoesFazenda: document.querySelector('input[name="comunicacoesFazenda"]:checked') ? 
+                document.querySelector('input[name="comunicacoesFazenda"]:checked').value : 'não informado'
+        };
+
+        function restaurarBotao() {
+            submitButton.innerHTML = textoOriginal;
+            submitButton.disabled = false;
+            submitButton.style.opacity = '1';
+        }
+
+        // Validação do regulamento
+        if (!formData.aceitoRegulamento) {
+            restaurarBotao();
+            mostrarMensagem('Você deve aceitar o Regulamento Interno para prosseguir.', 'erro');
+            return;
+        }
+
+        // Validação do CPF via webhook (usando seu padrão)
+        console.log('🔍 Iniciando validação do CPF...');
+        const resultadoValidacao = await validarCPF(formData.cpf);
+        
+        if (resultadoValidacao.valido) {
+            console.log('✅ CPF validado com sucesso via webhook!');
+            submitButton.innerHTML = '<span class="loading-spinner"></span> Enviando dados...';
+        } else {
+            restaurarBotao();
+            mostrarMensagem(resultadoValidacao.erro || 'CPF inválido. Por favor, verifique e digite um CPF válido.', 'erro');
+            return;
+        }
+
+        // Demais validações
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            restaurarBotao();
+            mostrarMensagem('Por favor, insira um email válido.', 'erro');
+            return;
+        }
+
+        if (formData.celularLimpo.length < 10) {
+            restaurarBotao();
+            mostrarMensagem('Por favor, insira um número de celular válido.', 'erro');
+            return;
+        }
+
+        if (formData.nomeEvento.length < 3) {
+            restaurarBotao();
+            mostrarMensagem('O nome do evento deve ter pelo menos 3 caracteres.', 'erro');
+            return;
+        }
+
+        if (formData.valorNumerico <= 0) {
+            restaurarBotao();
+            mostrarMensagem('Por favor, insira um valor válido maior que zero.', 'erro');
+            return;
+        }
+
+        // Validação de datas
+        const hoje = new Date();
+        const chegada = new Date(formData.dataChegada);
+        const saida = new Date(formData.dataSaida);
+        const dataLimite = new Date();
+        dataLimite.setDate(hoje.getDate() - 60);
+        dataLimite.setHours(0, 0, 0, 0);
+
+        const chegadaNormalizada = new Date(chegada);
+        chegadaNormalizada.setHours(0, 0, 0, 0);
+        const saidaNormalizada = new Date(saida);
+        saidaNormalizada.setHours(0, 0, 0, 0);
+
+        if (chegadaNormalizada < dataLimite) {
+            restaurarBotao();
+            mostrarMensagem('A data de chegada não pode ser anterior a 60 dias da data atual.', 'erro');
+            return;
+        }
+
+        if (saidaNormalizada <= chegadaNormalizada) {
+            restaurarBotao();
+            mostrarMensagem('A data de saída deve ser posterior à data de chegada.', 'erro');
+            return;
+        }
+
+        // Envio para N8N
+        console.log('📤 Enviando dados para n8n...', formData);
+        const resultado = await enviarParaN8N(formData);
+
+        if (resultado.success) {
+            restaurarBotao();
+            mostrarMensagem('✅ Check-in realizado com sucesso! Dados enviados para processamento.');
+            setTimeout(() => {
+                form.reset();
+                showWelcomeScreen();
+            }, 3000);
+        } else {
+            restaurarBotao();
+            mostrarMensagem(`❌ Erro ao processar check-in: ${resultado.error}. Tente novamente.`, 'erro');
+        }
+    });
 });
