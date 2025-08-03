@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('estadiaForm');
     
     // URLs das webhooks
-    const WEBHOOK_URL = 'https://criadordigital-n8n-editor.kttqgl.easypanel.host/webhook-test/91479e0c-d686-42dd-a381-c3e44d50df7e';
+    const WEBHOOK_URL = 'https://criadordigital-n8n-webhook.kttqgl.easypanel.host/webhook/91479e0c-d686-42dd-a381-c3e44d50df7e';
     const CPF_VALIDATION_URL = 'https://criadordigital-n8n-webhook.kttqgl.easypanel.host/webhook/c4d1f0e8-90d5-4092-9f6c-ef116fe81e8a';
 
     // Função para mostrar a tela do formulário
