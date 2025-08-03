@@ -1,9 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('estadiaForm');
     
-    // URLs das webhooks
-    const WEBHOOK_URL = 'https://criadordigital-n8n-webhook.kttqgl.easypanel.host/webhook/91479e0c-d686-42dd-a381-c3e44d50df7e';
-    const CPF_VALIDATION_URL = 'https://criadordigital-n8n-webhook.kttqgl.easypanel.host/webhook/c4d1f0e8-90d5-4092-9f6c-ef116fe81e8a';
+    // URL da webhook do n8n (apenas para envio final)
+    const WEBHOOK_URL = 'https://criadordigital-n8n-editor.kttqgl.easypanel.host/webhook-test/91479e0c-d686-42dd-a381-c3e44d50df7e';
 
     // Função para mostrar a tela do formulário
     window.showFormScreen = function() {
@@ -73,85 +72,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ===== VALIDAÇÕES =====
+    // ===== VALIDAÇÃO DE CPF LOCAL (SUA FUNÇÃO ADAPTADA) =====
+    function validarCPF(cpf) {
+        // Remove possíveis caracteres de formatação
+        cpf = cpf.replace(/\D/g, '');
 
-    // Validação de CPF local (matemática)
-    function validarCPFLocal(cpf) {
-        cpf = cpf.replace(/[^\d]+/g, '');
-        if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
+        // Verifica a quantidade de dígitos do CPF
+        if (cpf.length !== 11) {
             return false;
         }
-        let soma = 0;
-        for (let i = 0; i < 9; i++) {
-            soma += parseInt(cpf.charAt(i)) * (10 - i);
+
+        // Verifica se todos os dígitos são iguais (casos como 111.111.111-11)
+        if (/^(\d)\1{10}$/.test(cpf)) {
+            return false;
         }
-        let resto = (soma * 10) % 11;
-        if (resto === 10 || resto === 11) resto = 0;
-        if (resto !== parseInt(cpf.charAt(9))) return false;
-        
-        soma = 0;
-        for (let i = 0; i < 10; i++) {
-            soma += parseInt(cpf.charAt(i)) * (11 - i);
-        }
-        resto = (soma * 10) % 11;
-        if (resto === 10 || resto === 11) resto = 0;
-        if (resto !== parseInt(cpf.charAt(10))) return false;
-        
-        return true;
-    }
 
-    // Validação de CPF via webhook (baseada no seu código funcional)
-    async function validarCPF(cpf) {
-        try {
-            const cpfLimpo = cpf.replace(/[^\d]/g, '');
-            console.log('🔍 Validando CPF via webhook:', cpfLimpo);
-            
-            const response = await fetch(CPF_VALIDATION_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    cpf: cpfLimpo
-                })
-            });
+        // Extrai a base do CPF e os dígitos verificadores
+        const base = cpf.slice(0, 9);
+        const dvInformado = cpf.slice(9, 11);
 
-            if (!response.ok) {
-                throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
-            }
+        // Função para calcular cada dígito verificador
+        const calcularDV = (base, pesoInicial) => {
+            const soma = base.split('').reduce((accumulator, num, index) => {
+                return accumulator + parseInt(num) * (pesoInicial - index);
+            }, 0);
 
-            const responseData = await response.json();
-            console.log('📋 Resposta completa da validação CPF:', responseData);
+            const resto = soma % 11;
+            return (resto < 2) ? '0' : String(11 - resto);
+        };
 
-            // Trata a resposta: [{"cpf": "37253211839", "valido": "true"}]
-            if (Array.isArray(responseData) && responseData.length > 0) {
-                const resultado = responseData[0];
-                const valido = resultado.valido === "true" || resultado.valido === true;
-                
-                console.log(`✅ CPF ${resultado.cpf} - Válido: ${valido}`);
-                
-                return {
-                    valido: valido,
-                    erro: valido ? null : 'CPF inválido ou não encontrado'
-                };
-            }
+        // Cálculo do primeiro dígito verificador
+        const dv1 = calcularDV(base, 10);
 
-            return {
-                valido: false,
-                erro: 'Erro na validação do CPF'
-            };
+        // Cálculo do segundo dígito verificador (utilizando a base + primeiro dígito verificador)
+        const dv2 = calcularDV(base + dv1, 11);
 
-        } catch (error) {
-            console.error('❌ Erro na validação do CPF via webhook:', error);
-            console.log('🔄 Usando validação local como fallback');
-            
-            const cpfValidoLocal = validarCPFLocal(cpf);
-            return {
-                valido: cpfValidoLocal,
-                erro: cpfValidoLocal ? null : 'CPF inválido (validação local)'
-            };
-        }
+        // Retorna verdadeiro se o CPF informado é igual ao calculado
+        return dv1 + dv2 === dvInformado;
     }
 
     // ===== FUNÇÕES AUXILIARES =====
@@ -236,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const textoOriginal = submitButton.innerHTML;
         
         // Ativa o loading
-        submitButton.innerHTML = '<span class="loading-spinner"></span> Validando CPF...';
+        submitButton.innerHTML = '<span class="loading-spinner"></span> Validando dados...';
         submitButton.disabled = true;
         submitButton.style.opacity = '0.7';
 
@@ -264,6 +221,8 @@ document.addEventListener('DOMContentLoaded', () => {
             submitButton.style.opacity = '1';
         }
 
+        // ===== VALIDAÇÕES =====
+
         // Validação do regulamento
         if (!formData.aceitoRegulamento) {
             restaurarBotao();
@@ -271,20 +230,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Validação do CPF via webhook (usando seu padrão)
-        console.log('🔍 Iniciando validação do CPF...');
-        const resultadoValidacao = await validarCPF(formData.cpf);
-        
-        if (resultadoValidacao.valido) {
-            console.log('✅ CPF validado com sucesso via webhook!');
-            submitButton.innerHTML = '<span class="loading-spinner"></span> Enviando dados...';
-        } else {
+        // Validação do CPF (usando sua função)
+        console.log('🔍 Validando CPF localmente:', formData.cpfLimpo);
+        if (!validarCPF(formData.cpf)) {
             restaurarBotao();
-            mostrarMensagem(resultadoValidacao.erro || 'CPF inválido. Por favor, verifique e digite um CPF válido.', 'erro');
+            mostrarMensagem('❌ CPF inválido. Por favor, verifique e digite um CPF válido.', 'erro');
             return;
         }
+        console.log('✅ CPF válido!');
 
-        // Demais validações
+        // Validação de email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
             restaurarBotao();
@@ -292,18 +247,21 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Validação de celular (mínimo 10 dígitos)
         if (formData.celularLimpo.length < 10) {
             restaurarBotao();
             mostrarMensagem('Por favor, insira um número de celular válido.', 'erro');
             return;
         }
 
+        // Validação do nome do evento
         if (formData.nomeEvento.length < 3) {
             restaurarBotao();
             mostrarMensagem('O nome do evento deve ter pelo menos 3 caracteres.', 'erro');
             return;
         }
 
+        // Validação do valor
         if (formData.valorNumerico <= 0) {
             restaurarBotao();
             mostrarMensagem('Por favor, insira um valor válido maior que zero.', 'erro');
@@ -334,6 +292,9 @@ document.addEventListener('DOMContentLoaded', () => {
             mostrarMensagem('A data de saída deve ser posterior à data de chegada.', 'erro');
             return;
         }
+
+        // Atualiza loading para envio
+        submitButton.innerHTML = '<span class="loading-spinner"></span> Enviando dados...';
 
         // Envio para N8N
         console.log('📤 Enviando dados para n8n...', formData);
