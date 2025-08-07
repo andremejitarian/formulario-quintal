@@ -186,7 +186,7 @@
       "percentual": 10,
       "observacao": "Não cumulativo com outros descontos"
     },
-    "bolsistas": {
+    "bolsistas100": {
       "nome": "Bolsista Integral",
       "descricao": "Desconto para bolsistas",
       "percentual": 100,
