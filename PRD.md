@@ -3,6 +3,7 @@
 **Versão:** 1.0
 **Data:** 13 de agosto de 2025
 **Elaborado por:** André
+**Mermaid:** https://www.mermaidchart.com/app/projects/daca25e4-351e-46a0-8f16-bfeaa3576cc1/diagrams/203eca58-5716-4ea6-a16e-3e4ab38e77a4/version/v0.1/edit
 
 ## 1. Introdução
 
