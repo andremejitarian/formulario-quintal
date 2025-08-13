@@ -2,7 +2,7 @@
 
 **Versão:** 1.0
 **Data:** 13 de agosto de 2025
-**Elaborado por:** Modelo One, Adapta
+**Elaborado por:** André
 
 ## 1. Introdução
 
